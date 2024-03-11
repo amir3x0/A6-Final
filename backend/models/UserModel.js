@@ -1,6 +1,34 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
+const ingredientSchema = new mongoose.Schema({
+  name: String,
+  quantity: String,
+});
+
+const RecipeSchema = new mongoose.Schema({
+  id: Number,
+  title: String,
+  difficulty: String,
+  category: String,
+  description: String,
+  instructions: [String],
+  ingredients: [ingredientSchema],
+  calories: {
+    total: Number,
+    protein: String,
+    carbs: String,
+    fat: String,
+  },
+  picture: String,
+  Chef: String,
+});
+
+const MealPlanSchema = new mongoose.Schema({
+  id: Number,
+  title: String,
+});
+
 const userSchema = new mongoose.Schema({
   name: String,
   email: {
@@ -17,6 +45,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  profileImageUrl: {
+    type: String, // URL to the user's profile image
+    required: false,
+  },
+  favoriteRecipes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Recipe'
+    }
+  ],
+  uploadedRecipes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Recipe'
+    }
+  ],
+  MealPlans: [MealPlanSchema]
 });
 
 // Pre-save hook to hash password before saving a new user
