@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { authenticateUser } from "../services/BackendService";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const SignInPage = ({ onSignIn }) => {
+  const { setUser } = useUser();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -10,16 +12,18 @@ const SignInPage = ({ onSignIn }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevent the default form submission
-    const name = await authenticateUser(username, password);
-    if (name) {
+    const userData = await authenticateUser(username, password);
+    if (userData) {
+      setUser(userData); // Assuming setUser is a context or state setter function
       // Store the access token in localStorage or in memory
-      localStorage.setItem("name", name); // Storing token in localStorage
+      // localStorage.setItem("userData", userData); // Storing token in localStorage
       navigate("/MyYummy"); // Navigate to the protected page
     } else {
       setErrorMessage("Login failed. Please try again.");
     }
   };
 
+  
   return (
     <form
       onSubmit={handleLogin}

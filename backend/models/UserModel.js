@@ -51,13 +51,13 @@ const userSchema = new mongoose.Schema({
   },
   favoriteRecipes: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Recipe'
     }
   ],
   uploadedRecipes: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Recipe'
     }
   ],

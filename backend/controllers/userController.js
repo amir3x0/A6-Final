@@ -2,37 +2,31 @@ const User = require("../models/UserModel");
 // const jwt = require('jsonwebtoken');
 
 
+// In your backend controller
 const getUser = async (req, res) => {
   try {
-    const { username, password } = req.body;
-    const user = await User.findOne({username: username});
-    console.log("Username:", username);
-    console.log("Password:", password);
-
-    if (user) {
-      const isMatch = await user.comparePassword(password);
-      if (isMatch) {
-        // Generate JWT Token
-        // const accessToken = jwt.sign(
-        //   { userId: user._id, username: user.username },
-        //   process.env.ACCESS_TOKEN_SECRET,
-        //   { expiresIn: '3h' } // Token expires in 24 hours
-        // );
-        console.log(user);
-        res.status(200).json(user.name);
-      } else {
-        // Password does not match
-        res.status(400).json({ message: "Login failed. Password incorrect." });
-      }
+    const { username, password } = req.body; // Correctly accessing the request body
+    const user = await User.findOne({ username }).populate('favoriteRecipes').populate('uploadedRecipes').populate('MealPlans');
+    if (user && await user.comparePassword(password)) {
+      // Exclude sensitive fields from the response
+      const userResponse = {
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        profileImageUrl: user.profileImageUrl,
+        favoriteRecipes: user.favoriteRecipes,
+      };
+      res.status(200).json(userResponse);
     } else {
-      // User not found
-      res.status(400).json({ message: "Login failed. User not found." });
+      res.status(400).json({ message: "Login failed. Incorrect username or password." });
     }
   } catch (error) {
     console.log("Server error during login:", error);
     res.status(500).json({ message: "Server error during login." });
   }
 };
+
+
 
 const createUser = async (req, res) => {
   try {

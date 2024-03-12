@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Recipe from "../components/RecipeCard";
 import Settings from "./settings"; // Adjust the import path as necessary
+import { useUser } from "../context/UserContext";
 
 // Correct way to reference the image from the public directory in a JS file
 
@@ -36,7 +37,8 @@ const userData = {
       instructions: ["Step 1", "Step 2"],
       difficulty: "Medium",
       category: "mainDish", // Adjusted to match the enum
-      ingredients: [ // Added based on the new structure
+      ingredients: [
+        // Added based on the new structure
         { name: "Spaghetti", quantity: "400g" },
         { name: "Pancetta", quantity: "150g" },
         { name: "Eggs", quantity: "3" },
@@ -48,7 +50,8 @@ const userData = {
     {
       id: 2,
       title: "Vegetarian Chili",
-      description: "A hearty, filling chili that's packed with fiber and protein.",
+      description:
+        "A hearty, filling chili that's packed with fiber and protein.",
       instructions: ["Step 1", "Step 2", "Step 3"],
       difficulty: "Easy",
       category: "mainDish", // Adjusted
@@ -102,8 +105,13 @@ const userData = {
     {
       id: 5,
       title: "Quinoa Salad with Avocado",
-      description: "A refreshing and nutritious salad perfect for a quick lunch.",
-      instructions: ["Step 1: Rinse and cook the quinoa.", "Step 2: Chop the vegetables and avocado.", "Step 3: Mix all ingredients with dressing."],
+      description:
+        "A refreshing and nutritious salad perfect for a quick lunch.",
+      instructions: [
+        "Step 1: Rinse and cook the quinoa.",
+        "Step 2: Chop the vegetables and avocado.",
+        "Step 3: Mix all ingredients with dressing.",
+      ],
       difficulty: "Easy",
       category: "appetizers", // Adjusted
       ingredients: [
@@ -120,8 +128,13 @@ const userData = {
     {
       id: 6,
       title: "Beef Stir-Fry",
-      description: "A savory and quick beef stir-fry with vegetables, perfect for a weeknight dinner.",
-      instructions: ["Step 1: Slice beef and vegetables.", "Step 2: Stir-fry beef until browned.", "Step 3: Add vegetables and sauce, then cook until tender."],
+      description:
+        "A savory and quick beef stir-fry with vegetables, perfect for a weeknight dinner.",
+      instructions: [
+        "Step 1: Slice beef and vegetables.",
+        "Step 2: Stir-fry beef until browned.",
+        "Step 3: Add vegetables and sauce, then cook until tender.",
+      ],
       difficulty: "Medium",
       category: "mainDish", // Adjusted
       ingredients: [
@@ -138,7 +151,11 @@ const userData = {
       id: 7,
       title: "Vegan Chocolate Cake",
       description: "A moist and rich chocolate cake that's completely vegan.",
-      instructions: ["Step 1: Mix dry ingredients.", "Step 2: Add wet ingredients and combine.", "Step 3: Bake until a toothpick comes out clean."],
+      instructions: [
+        "Step 1: Mix dry ingredients.",
+        "Step 2: Add wet ingredients and combine.",
+        "Step 3: Bake until a toothpick comes out clean.",
+      ],
       difficulty: "Medium",
       category: "dessert", // Adjusted
       ingredients: [
@@ -161,8 +178,8 @@ const userData = {
   ],
 };
 
-
 export default function MyYummy() {
+  const { user } = useUser(); // Access user data from context
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -172,25 +189,26 @@ export default function MyYummy() {
   const handleRecipeSelect = (id) => setSelectedRecipeId(id);
   const toggleSettings = () => setShowSettings(!showSettings);
 
+  // Adjust this to correctly render recipe cards based on user data
   const renderRecipeCards = (recipes) =>
     recipes.map((recipe) => (
       <div
-        key={recipe.id}
+        key={recipe._id} // Ensure recipes have a unique identifier, such as _id
         className={`${
-          expandedRecipeId === recipe.id ? "col-span-3" : "col-span-1"
+          expandedRecipeId === recipe._id ? "col-span-3" : "col-span-1"
         } transition-all duration-300 ease-in-out`}
       >
         <Recipe
           recipe={recipe}
-          isSelected={selectedRecipeId === recipe.id}
-          isExpanded={expandedRecipeId === recipe.id}
-          onSelect={() => handleRecipeSelect(recipe.id)}
-          onClick={() => handleRecipeClick(recipe.id)}
+          isSelected={selectedRecipeId === recipe._id}
+          isExpanded={expandedRecipeId === recipe._id}
+          onSelect={() => handleRecipeSelect(recipe._id)}
+          onClick={() => handleRecipeClick(recipe._id)}
         />
       </div>
     ));
 
-  // Custom function to render the Add button
+  // Render the Add button
   const renderAddButton = (onClickFunction, buttonText = "+") => (
     <button
       className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -200,24 +218,29 @@ export default function MyYummy() {
     </button>
   );
 
+  if (!user) {
+    return <div>Loading user data...</div>; // Or handle user not found more gracefully
+  }
+
   return (
     <div className="container mx-auto px-5">
       <div className="flex flex-wrap -mb-4">
-        {/*profile and settings Block*/}
+        {/* Profile and settings block */}
         <div className="flex flex-col items-center w-1/3 p-6 bg-white rounded-lg shadow-xl">
           <img
-            src={userData.profileImageUrl}
+            src={user.profileImageUrl || "default_profile_image_url"} // Provide a default image URL if necessary
             alt="Profile"
             className="rounded-full h-48 w-48 object-cover shadow-lg border-4 border-blue-300"
           />
           <h2 className="text-3xl font-extrabold text-center mt-4 text-blue-600">
-            {userData.name}
+            {user.name}
           </h2>
           <p className="text-base text-center text-gray-500 mt-2">
-            @{userData.username}
+            @{user.username}
           </p>
           <p className="text-center mt-4 text-lg text-gray-700">
-            {userData.bio}
+            {user.bio || "No bio available"} // Show a default message if bio is
+            not available
           </p>
           <button
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
@@ -227,58 +250,61 @@ export default function MyYummy() {
           </button>
         </div>
 
+        {/* Favorite and uploaded recipes, and meal plans */}
         <div className="w-full lg:w-2/3 px-4">
-          {/* Favorite Recipes */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Favorite Recipes
-              </h2>
-              {renderAddButton(() => console.log("Add Favorite Recipe"))}
-            </div>
-            <div
-              className="grid grid-cols-3 gap-6 overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {renderRecipeCards(userData.favoriteRecipes)}
-            </div>
+            <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+              Favorite Recipes
+            </h2>
+            {user.favoriteRecipes && user.favoriteRecipes.length > 0 ? (
+              <div
+                className="grid grid-cols-3 gap-6 overflow-auto"
+                style={{ maxHeight: "calc(100px * 6)" }}
+              >
+                {renderRecipeCards(user.favoriteRecipes)}
+              </div>
+            ) : (
+              <p>No favorite recipes added yet.</p>
+            )}
           </div>
 
-          {/* Uploaded Recipes */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Uploaded Recipes
-              </h2>
-              {renderAddButton(() => console.log("Add Uploaded Recipe"))}
-            </div>
-            <div
-              className="grid grid-cols-3 gap-6 overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {renderRecipeCards(userData.uploadedRecipes)}
-            </div>
+            <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+              Uploaded Recipes
+            </h2>
+            {user.uploadedRecipes && user.uploadedRecipes.length > 0 ? (
+              <div
+                className="grid grid-cols-3 gap-6 overflow-auto"
+                style={{ maxHeight: "calc(100px * 6)" }}
+              >
+                {renderRecipeCards(user.uploadedRecipes)}
+              </div>
+            ) : (
+              <p>No recipes uploaded yet.</p>
+            )}
           </div>
 
-          {/* Meal Plans Section */}
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Meal Plans
-              </h2>
-              {renderAddButton(() => console.log("Add Meal Plan"), "+")}
-            </div>
-            <div
-              className="overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {userData.mealPlans.map((plan) => (
+            <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+              Meal Plans
+            </h2>
+            {user.MealPlans && user.MealPlans.length > 0 ? (
+              user.MealPlans.map((plan) => (
                 <div key={plan.id} className="py-2">
                   {plan.title}
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              <p>No meal plans added yet.</p>
+            )}
           </div>
+        </div>
+
+        {/* Debugging: Display user object */}
+        <div>
+          <h3>User Object:</h3>
+          <pre>{JSON.stringify(user, null, 2)}</pre>
+          <pre>{localStorage.getItem("userData")}</pre>
         </div>
       </div>
     </div>
