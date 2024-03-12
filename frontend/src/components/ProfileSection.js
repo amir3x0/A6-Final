@@ -304,7 +304,6 @@ export default function MyYummy() {
         <div>
           <h3>User Object:</h3>
           <pre>{JSON.stringify(user, null, 2)}</pre>
-          <pre>{localStorage.getItem("userData")}</pre>
         </div>
       </div>
     </div>
