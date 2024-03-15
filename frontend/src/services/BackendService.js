@@ -13,15 +13,6 @@ export const fetchMessageFromBackend = async () => {
   }
 };
 
-export const fetchRecipes = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/recipes`);
-    return response.data;
-  } catch (error) {
-    throw new Error("Failed to fetch the recipes.");
-  }
-};
-
 export const registerNewUser = async (name, email, username, password) => {
   try {
     await axios.post(`${API_URL}/users`, { name, email, username, password });
@@ -48,7 +39,6 @@ export const authenticateUser = async (username, password) => {
   }
 };
 
-// In services/BackendService.js or a similar file
 export const fetchProtectedData = async () => {
   try {
     const response = await axios.get(`${API_URL}/protected-route`, {
@@ -63,6 +53,14 @@ export const fetchProtectedData = async () => {
   }
 };
 
+export const fetchRecipes = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/recipes`);
+    return response.data;
+  } catch (error) {
+    throw new Error("Failed to fetch the recipes.");
+  }
+};
 
 export const fetchRecipeById = async (recipeId) => {
   try {

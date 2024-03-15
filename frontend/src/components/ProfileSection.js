@@ -1,193 +1,46 @@
 import React, { useState, useEffect } from "react";
-import Recipe from "../components/RecipeCard";
-import Settings from "./settings"; // Adjust the import path as necessary
 import { useUser } from "../context/UserContext";
-
-// Correct way to reference the image from the public directory in a JS file
-
-const images = {
-  ramsay: process.env.PUBLIC_URL + "/images/MyYummy_img/ramsay.jpg",
-  spaghetti_carbonara:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/spaghetti_carbonara.jpg",
-  Vegetarian_Chili:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Vegetarian-Chili.jpg",
-  lemon_salmon: process.env.PUBLIC_URL + "/images/MyYummy_img/lemon_salmon.jpg",
-  chicken_tikka:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/chicken-tikka.jpg",
-  Beef_Stir_Fry:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Beef-Stir-Fry.jpg",
-  Quinoa_Salad_with_Avocado:
-    process.env.PUBLIC_URL +
-    "/images/MyYummy_img/Quinoa-Salad-with-Avocado.jpg",
-  Vegan_Chocolate_Cake:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Vegan-Chocolate-Cake.jpg",
-};
-
-const userData = {
-  name: "Gordon Ramsay",
-  username: "GRamsay",
-  profileImageUrl: images.ramsay,
-  bio: "Food enthusiast. Love to cook and explore new recipes.",
-
-  favoriteRecipes: [
-    {
-      id: 1,
-      title: "Spaghetti Carbonara",
-      description: "A classic Italian pasta dish...",
-      instructions: ["Step 1", "Step 2"],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted to match the enum
-      ingredients: [
-        // Added based on the new structure
-        { name: "Spaghetti", quantity: "400g" },
-        { name: "Pancetta", quantity: "150g" },
-        { name: "Eggs", quantity: "3" },
-        { name: "Parmesan Cheese", quantity: "75g" },
-      ],
-      picture: images.spaghetti_carbonara,
-      calories: { total: 600, protein: "20g", carbs: "80g", fat: "22g" },
-    },
-    {
-      id: 2,
-      title: "Vegetarian Chili",
-      description:
-        "A hearty, filling chili that's packed with fiber and protein.",
-      instructions: ["Step 1", "Step 2", "Step 3"],
-      difficulty: "Easy",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Kidney beans", quantity: "1 can" },
-        { name: "Chickpeas", quantity: "1 can" },
-        { name: "Tomatoes", quantity: "2 cans" },
-        { name: "Bell peppers", quantity: "2" },
-        { name: "Onion", quantity: "1" },
-        { name: "Chili powder", quantity: "2 tbsp" },
-      ],
-      picture: images.Vegetarian_Chili,
-      calories: { total: 450, protein: "15g", carbs: "65g", fat: "10g" },
-    },
-    {
-      id: 3,
-      title: "Lemon Garlic Salmon",
-      description: "Flavorful salmon with a lemon garlic butter sauce.",
-      instructions: ["Step 1", "Step 2"],
-      difficulty: "Easy",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Salmon fillets", quantity: "4" },
-        { name: "Lemon", quantity: "1" },
-        { name: "Garlic", quantity: "3 cloves" },
-        { name: "Butter", quantity: "50g" },
-      ],
-      picture: images.lemon_salmon,
-      calories: { total: 500, protein: "45g", carbs: "5g", fat: "35g" },
-    },
-    {
-      id: 4,
-      title: "Chicken Tikka Masala",
-      description: "A delicious creamy and richly spiced Indian chicken dish.",
-      instructions: ["Step 1", "Step 2", "Step 3", "Step 4"],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Chicken breast", quantity: "500g" },
-        { name: "Yogurt", quantity: "200ml" },
-        { name: "Tikka masala paste", quantity: "100g" },
-        { name: "Tomatoes", quantity: "400g" },
-        { name: "Cream", quantity: "100ml" },
-      ],
-      picture: images.chicken_tikka,
-      calories: { total: 700, protein: "50g", carbs: "50g", fat: "30g" },
-    },
-  ],
-
-  uploadedRecipes: [
-    {
-      id: 5,
-      title: "Quinoa Salad with Avocado",
-      description:
-        "A refreshing and nutritious salad perfect for a quick lunch.",
-      instructions: [
-        "Step 1: Rinse and cook the quinoa.",
-        "Step 2: Chop the vegetables and avocado.",
-        "Step 3: Mix all ingredients with dressing.",
-      ],
-      difficulty: "Easy",
-      category: "appetizers", // Adjusted
-      ingredients: [
-        { name: "Quinoa", quantity: "200g" },
-        { name: "Avocado", quantity: "1" },
-        { name: "Cherry tomatoes", quantity: "100g" },
-        { name: "Cucumber", quantity: "1" },
-        { name: "Lemon juice", quantity: "2 tbsp" },
-        { name: "Olive oil", quantity: "3 tbsp" },
-      ],
-      picture: images.Quinoa_Salad_with_Avocado,
-      calories: { total: 350, protein: "8g", carbs: "45g", fat: "18g" },
-    },
-    {
-      id: 6,
-      title: "Beef Stir-Fry",
-      description:
-        "A savory and quick beef stir-fry with vegetables, perfect for a weeknight dinner.",
-      instructions: [
-        "Step 1: Slice beef and vegetables.",
-        "Step 2: Stir-fry beef until browned.",
-        "Step 3: Add vegetables and sauce, then cook until tender.",
-      ],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Beef steak", quantity: "400g" },
-        { name: "Broccoli", quantity: "1 head" },
-        { name: "Carrot", quantity: "2" },
-        { name: "Soy sauce", quantity: "50ml" },
-        { name: "Ginger", quantity: "2 tsp" },
-      ],
-      picture: images.Beef_Stir_Fry,
-      calories: { total: 500, protein: "30g", carbs: "35g", fat: "22g" },
-    },
-    {
-      id: 7,
-      title: "Vegan Chocolate Cake",
-      description: "A moist and rich chocolate cake that's completely vegan.",
-      instructions: [
-        "Step 1: Mix dry ingredients.",
-        "Step 2: Add wet ingredients and combine.",
-        "Step 3: Bake until a toothpick comes out clean.",
-      ],
-      difficulty: "Medium",
-      category: "dessert", // Adjusted
-      ingredients: [
-        { name: "Flour", quantity: "250g" },
-        { name: "Cocoa powder", quantity: "75g" },
-        { name: "Baking soda", quantity: "2 tsp" },
-        { name: "Sugar", quantity: "200g" },
-        { name: "Vegetable oil", quantity: "100ml" },
-        { name: "Vinegar", quantity: "1 tbsp" },
-      ],
-      picture: images.Vegan_Chocolate_Cake,
-      calories: { total: 450, protein: "6g", carbs: "60g", fat: "20g" },
-    },
-  ],
-
-  mealPlans: [
-    { id: 1, title: "Weekly Family Plan" },
-    { id: 2, title: "Low Carb Plan" },
-    // Add more meal plans as needed
-  ],
-};
+import { fetchRecipeById } from "../services/BackendService";
+import RecipeCard from "../components/RecipeCard";
+import Settings from "./settings"; // Adjust the import path as necessary
 
 export default function MyYummy() {
   const { user } = useUser(); // Access user data from context
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [uploadedRecipes, setUploadedRecipes] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
 
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
   const handleRecipeSelect = (id) => setSelectedRecipeId(id);
   const toggleSettings = () => setShowSettings(!showSettings);
+
+  // Function to handle fetching of recipes by IDs and setting state
+  const fetchRecipes = async (recipeIds, setter) => {
+    const recipes = [];
+    for (const id of recipeIds.split(",")) {
+      // Assuming your IDs are in a single string separated by commas
+      try {
+        const recipe = await fetchRecipeById(id);
+        recipes.push(recipe);
+      } catch (error) {
+        console.error(`Failed to fetch recipe with ID ${id}:`, error);
+      }
+    }
+    setter(recipes);
+  };
+
+  useEffect(() => {
+    if (user.favoriteRecipes && user.favoriteRecipes.length > 0) {
+      fetchRecipes(user.favoriteRecipes[0], setFavoriteRecipes); // Assuming favoriteRecipes is an array with a single string of IDs
+    }
+    if (user.uploadedRecipes && user.uploadedRecipes.length > 0) {
+      fetchRecipes(user.uploadedRecipes[0], setUploadedRecipes); // Assuming uploadedRecipes is an array with a single string of IDs
+    }
+  }, [user]);
 
   // Adjust this to correctly render recipe cards based on user data
   const renderRecipeCards = (recipes) =>
@@ -198,7 +51,7 @@ export default function MyYummy() {
           expandedRecipeId === recipe._id ? "col-span-3" : "col-span-1"
         } transition-all duration-300 ease-in-out`}
       >
-        <Recipe
+        <RecipeCard
           recipe={recipe}
           isSelected={selectedRecipeId === recipe._id}
           isExpanded={expandedRecipeId === recipe._id}
@@ -222,16 +75,51 @@ export default function MyYummy() {
     return <div>Loading user data...</div>; // Or handle user not found more gracefully
   }
 
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  };
+
+  const handleUpload = () => {
+    // Implement the upload logic
+    console.log("Upload button clicked");
+
+    setShowOptions(false);
+  };
+
+  const handleChooseAvatar = () => {
+    // Implement the choose avatar logic
+    console.log("Choose Avatar button clicked");
+
+    setShowOptions(false);
+  };
+
   return (
     <div className="container mx-auto px-5">
       <div className="flex flex-wrap -mb-4">
         {/* Profile and settings block */}
-        <div className="flex flex-col items-center w-1/3 p-6 bg-white rounded-lg shadow-xl">
+        <div className="flex flex-col items-center w-1/3 p-6 bg-white rounded-lg shadow-xl relative">
           <img
-            src={user.profileImageUrl || "default_profile_image_url"} // Provide a default image URL if necessary
+            src={user.profileImageUrl || "default_profile_image_url"}
             alt="Profile"
-            className="rounded-full h-48 w-48 object-cover shadow-lg border-4 border-blue-300"
+            className="rounded-full h-48 w-48 object-cover shadow-lg border-4 border-blue-300 cursor-pointer"
+            onClick={toggleOptions}
           />
+          {showOptions && (
+            <div className="options-overlay absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center bg-black bg-opacity-50">
+              <button
+                className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={handleUpload}
+              >
+                Upload
+              </button>
+              <button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                onClick={handleChooseAvatar}
+              >
+                Choose Avatar
+              </button>
+            </div>
+          )}
           <h2 className="text-3xl font-extrabold text-center mt-4 text-blue-600">
             {user.name}
           </h2>
@@ -239,8 +127,7 @@ export default function MyYummy() {
             @{user.username}
           </p>
           <p className="text-center mt-4 text-lg text-gray-700">
-            {user.bio || "No bio available"} // Show a default message if bio is
-            not available
+            {user.bio || "No bio available"}
           </p>
           <button
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
@@ -252,32 +139,34 @@ export default function MyYummy() {
 
         {/* Favorite and uploaded recipes, and meal plans */}
         <div className="w-full lg:w-2/3 px-4">
+          {/* Favorite Recipes Section */}
           <div className="mb-8">
             <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
               Favorite Recipes
             </h2>
-            {user.favoriteRecipes && user.favoriteRecipes.length > 0 ? (
+            {favoriteRecipes.length > 0 ? (
               <div
                 className="grid grid-cols-3 gap-6 overflow-auto"
                 style={{ maxHeight: "calc(100px * 6)" }}
               >
-                {renderRecipeCards(user.favoriteRecipes)}
+                {renderRecipeCards(favoriteRecipes)}
               </div>
             ) : (
               <p>No favorite recipes added yet.</p>
             )}
           </div>
 
+          {/* Uploaded Recipes Section */}
           <div className="mb-8">
             <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
               Uploaded Recipes
             </h2>
-            {user.uploadedRecipes && user.uploadedRecipes.length > 0 ? (
+            {uploadedRecipes.length > 0 ? (
               <div
                 className="grid grid-cols-3 gap-6 overflow-auto"
                 style={{ maxHeight: "calc(100px * 6)" }}
               >
-                {renderRecipeCards(user.uploadedRecipes)}
+                {renderRecipeCards(uploadedRecipes)}
               </div>
             ) : (
               <p>No recipes uploaded yet.</p>
@@ -300,11 +189,11 @@ export default function MyYummy() {
           </div>
         </div>
 
-        {/* Debugging: Display user object */}
+        {/* Debugging: Display user object
         <div>
           <h3>User Object:</h3>
           <pre>{JSON.stringify(user, null, 2)}</pre>
-        </div>
+        </div> */}
       </div>
     </div>
   );

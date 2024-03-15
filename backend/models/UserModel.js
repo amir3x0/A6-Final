@@ -27,10 +27,11 @@ const RecipeSchema = new mongoose.Schema({
 const MealPlanSchema = new mongoose.Schema({
   id: Number,
   title: String,
+  recipes: [RecipeSchema],
 });
 
 const userSchema = new mongoose.Schema({
-  name: String,
+  name: {type: String},
   email: {
     type: String,
     required: true,
@@ -49,26 +50,15 @@ const userSchema = new mongoose.Schema({
     type: String, // URL to the user's profile image
     required: false,
   },
-  favoriteRecipes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Recipe'
-    }
-  ],
-  uploadedRecipes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Recipe'
-    }
-  ],
-  MealPlans: [MealPlanSchema]
+  favoriteRecipes: [{ type: String, default: [] }],
+  uploadedRecipes: [{ type: String, default: [] }],
+  MealPlans: [MealPlanSchema],
 });
 
 // Pre-save hook to hash password before saving a new user
-userSchema.pre('save', async function (next) {
+userSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) return next();
-
+  if (!this.isModified("password")) return next();
   try {
     // Generate a salt
     const salt = await bcrypt.genSalt(10);
