@@ -12,11 +12,13 @@ import Footer from "./components/Footer";
 import SignInPage from "./components/SignInPage";
 import { ShoppingListProvider } from './context/ShoppingListContext';
 import { SelectedRecipesProvider } from './context/SelectedRecipesContext'; 
+import { RecipesForShoppingListProvider } from './context/RecipesForShoppingListContext'; 
 
 function App() {
   return (
     <Router>
       <SelectedRecipesProvider> 
+      <RecipesForShoppingListProvider> 
       <ShoppingListProvider>
         <div>
           <NavBar />
@@ -36,6 +38,7 @@ function App() {
           <Footer />
         </div>
         </ShoppingListProvider>
+      </RecipesForShoppingListProvider>
       </SelectedRecipesProvider>
     </Router>
   );

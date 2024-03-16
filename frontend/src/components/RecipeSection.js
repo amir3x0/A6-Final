@@ -3,6 +3,7 @@ import RecipeCard from "./RecipeCard";
 import { fetchRecipes } from "../services/BackendService";
 import { useLocation } from "react-router-dom";
 import { useSelectedRecipes } from '../context/SelectedRecipesContext';
+import { useRecipesForShoppingList } from '../context/RecipesForShoppingListContext';
 import { useNavigate } from "react-router-dom";
 
 
@@ -14,10 +15,13 @@ const RecipeSection = () => {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedRecipes, setSelectedRecipes] = useState([]); // Define the state for selected recipes
+  const [recipesForShoppingList, setRecipesForShoppingList] = useState([]); // Define the state for selected recipes
   const [loadingStatus, setLoadingStatus] = useState("Loading");
   const location = useLocation();
+  const fromShoppingList = location.state?.fromShoppingList;
   const passedCategory = location.state?.category;
   const { addRecipe } = useSelectedRecipes();
+  const { addRecipeForShoppingList } = useRecipesForShoppingList();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,10 +59,17 @@ const RecipeSection = () => {
 
   const handleSelectRecipe = (recipeId) => {
     // Use the addRecipe method from the context to add the selected recipe
+    if(fromShoppingList){
+      addRecipeForShoppingList(recipeId).then(() => {
+        // After adding the recipe, navigate back to the PlanSection
+        navigate('/Shopping');
+      }).catch(error => console.error("Error adding recipe:", error));
+  }else{
     addRecipe(recipeId).then(() => {
         // After adding the recipe, navigate back to the PlanSection
         navigate('/plan');
     }).catch(error => console.error("Error adding recipe:", error));
+  }
 };
 
   useEffect(() => {
@@ -146,7 +157,7 @@ const RecipeSection = () => {
                       selectedRecipe && selectedRecipe._id === recipe._id
                     }
                     onSelect={() => handleSelectRecipe(recipe._id)}
-                    showSelectButton={!!passedCategory}
+                    showSelectButton={!!passedCategory||fromShoppingList}
                   />
                 </div>
               ))}
