@@ -13,31 +13,34 @@ import SignInPage from "./components/SignInPage";
 import { ShoppingListProvider } from "./context/ShoppingListContext";
 import { SelectedRecipesProvider } from "./context/SelectedRecipesContext";
 import { UserProvider } from "./context/UserContext";
+import { RecipesForShoppingListProvider } from "./context/RecipesForShoppingListContext";
 
 function App() {
   return (
     <Router>
       <UserProvider>
         <SelectedRecipesProvider>
-          <ShoppingListProvider>
-            <div>
-              <NavBar />
-              <div className="font-serif">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/A6/" element={<Home />} />
-                  <Route path="/Home" element={<Home />} />
-                  <Route path="/Recipes" element={<Recipes />} />
-                  <Route path="/Plan" element={<PlanMeal />} />
-                  <Route path="/Share" element={<Share />} />
-                  <Route path="/Shopping" element={<Shopping />} />
-                  <Route path="/MyYummy" element={<MyYummy />} />
-                  <Route path="/SignIn" element={<SignInPage />} />
-                </Routes>
+          <RecipesForShoppingListProvider>
+            <ShoppingListProvider>
+              <div>
+                <NavBar />
+                <div className="font-serif">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/A6/" element={<Home />} />
+                    <Route path="/Home" element={<Home />} />
+                    <Route path="/Recipes" element={<Recipes />} />
+                    <Route path="/Plan" element={<PlanMeal />} />
+                    <Route path="/Share" element={<Share />} />
+                    <Route path="/Shopping" element={<Shopping />} />
+                    <Route path="/MyYummy" element={<MyYummy />} />
+                    <Route path="/SignIn" element={<SignInPage />} />
+                  </Routes>
+                </div>
+                <Footer />
               </div>
-              <Footer />
-            </div>
-          </ShoppingListProvider>
+            </ShoppingListProvider>
+          </RecipesForShoppingListProvider>
         </SelectedRecipesProvider>
       </UserProvider>
     </Router>
