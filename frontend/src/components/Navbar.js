@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { useUser } from "../context/UserContext";
 
 const loggedInItems = [
   { name: "Home", path: "/" },
@@ -38,6 +39,7 @@ const NavItem = ({ item, onItemClick, isActive }) => {
 
 const NavBar = () => {
   const navigate = useNavigate();
+  const {user} = useUser();
   const location = useLocation("");
   const [logged, setLogged] = useState(false);
   const [username, setUserName] = useState("");
@@ -46,9 +48,8 @@ const NavBar = () => {
 
   useEffect(() => {
     const authUser = async => {
-      const name = localStorage.getItem("name");
-      if (name) {
-        setUserName(name);
+      if (user && user.name) {
+        setUserName(user.name);
         setLogged(true);
         setNavItems(loggedInItems);
       } else {
