@@ -28,12 +28,18 @@ export const RecipesForShoppingListProvider = ({ children }) => {
     }
   };
 
+  const removeRecipeFromShoppingList = (recipeId) => {
+    setRecipesForShoppingList(prevRecipes =>
+      prevRecipes.filter(recipe => recipe._id !== recipeId)
+    );
+  };
+
   const clearRecipesForShoppingList = () => {
     setRecipesForShoppingList([]);
   };
 
   return (
-    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, clearRecipesForShoppingList }}>
+    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, removeRecipeFromShoppingList, clearRecipesForShoppingList }}>
       {children}
     </RecipesForShoppingListContext.Provider>
   );
