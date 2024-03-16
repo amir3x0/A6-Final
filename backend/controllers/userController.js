@@ -22,6 +22,7 @@ const getUser = async (req, res) => {
       email: user.email,
       username: user.username,
       profileImageUrl: user.profileImageUrl,
+      bio: user.bio,
       favoriteRecipes: user.favoriteRecipes, 
       uploadedRecipes: user.uploadedRecipes, 
       MealPlans: user.MealPlans,

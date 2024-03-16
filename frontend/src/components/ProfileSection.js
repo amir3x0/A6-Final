@@ -5,15 +5,15 @@ import RecipeCard from "../components/RecipeCard";
 import { IKContext, IKImage, IKUpload } from "imagekitio-react";
 import Settings from "./settings"; // Adjust the import path as necessary
 
-async function fetchAvatarPics() {
-  return [
-    "/avatar_pics/avatar1.jpg",
-    "/avatar_pics/avatar2.jpg",
-    "/avatar_pics/avatar3.jpg",
-    "/avatar_pics/avatar4.jpg",
-    "/avatar_pics/avatar5.jpg",
-  ];
-}
+// async function fetchAvatarPics() {
+//   return [
+//     "/avatar_pics/avatar1.jpg",
+//     "/avatar_pics/avatar2.jpg",
+//     "/avatar_pics/avatar3.jpg",
+//     "/avatar_pics/avatar4.jpg",
+//     "/avatar_pics/avatar5.jpg",
+//   ];
+// }
 
 export default function MyYummy() {
   const { user } = useUser(); // Access user data from context
@@ -26,79 +26,38 @@ export default function MyYummy() {
   const [avatarPics, setAvatarPics] = useState([]);
 
   useEffect(() => {
-    if (user.favoriteRecipes && user.favoriteRecipes.length > 0) {
-      fetchRecipes(user.favoriteRecipes[0], setFavoriteRecipes); // Assuming favoriteRecipes is an array with a single string of IDs
+    const fetchRecipes = async (recipeIds, setter) => {
+      const recipes = await Promise.all(
+        recipeIds.map((id) => fetchRecipeById(id))
+      );
+      setter(recipes);
+    };
+
+    if (user?.favoriteRecipes?.length > 0) {
+      fetchRecipes(user.favoriteRecipes, setFavoriteRecipes);
     }
-    if (user.uploadedRecipes && user.uploadedRecipes.length > 0) {
-      fetchRecipes(user.uploadedRecipes[0], setUploadedRecipes); // Assuming uploadedRecipes is an array with a single string of IDs
+    if (user?.uploadedRecipes?.length > 0) {
+      fetchRecipes(user.uploadedRecipes, setUploadedRecipes);
     }
   }, [user]);
 
-  useEffect(() => {
-    const getAvatars = async () => {
-      const avatars = await fetchAvatarPics();
-      setAvatarPics(avatars);
-    };
-
-    getAvatars();
-  }, []);
-
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
-  const handleRecipeSelect = (id) => setSelectedRecipeId(id);
-  const toggleSettings = () => setShowSettings(!showSettings);
 
-  // Function to handle fetching of recipes by IDs and setting state
-  const fetchRecipes = async (recipeIds, setter) => {
-    const recipes = [];
-    for (const id of recipeIds.split(",")) {
-      // Assuming your IDs are in a single string separated by commas
-      try {
-        const recipe = await fetchRecipeById(id);
-        recipes.push(recipe);
-      } catch (error) {
-        console.error(`Failed to fetch recipe with ID ${id}:`, error);
-      }
-    }
-    setter(recipes);
-  };
-
-
-
-  // Adjust this to correctly render recipe cards based on user data
   const renderRecipeCards = (recipes) =>
     recipes.map((recipe) => (
-      <div
-        key={recipe._id} // Ensure recipes have a unique identifier, such as _id
-        className={`${
-          expandedRecipeId === recipe._id ? "col-span-3" : "col-span-1"
-        } transition-all duration-300 ease-in-out`}
-      >
+      <div key={recipe._id} className="p-4">
         <RecipeCard
           recipe={recipe}
-          isSelected={selectedRecipeId === recipe._id}
-          isExpanded={expandedRecipeId === recipe._id}
-          onSelect={() => handleRecipeSelect(recipe._id)}
           onClick={() => handleRecipeClick(recipe._id)}
+          isExpanded={expandedRecipeId === recipe._id}
         />
       </div>
     ));
 
-  // Render the Add button
-  const renderAddButton = (onClickFunction, buttonText = "+") => (
-    <button
-      className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      onClick={onClickFunction}
-    >
-      {buttonText}
-    </button>
-  );
+  if (!user) return <div>Loading user data...</div>;
 
-  if (!user) {
-    return <div>Loading user data...</div>; // Or handle user not found more gracefully
-  }
-
-
+  const toggleSettings = () => setShowSettings(!showSettings);
 
   const toggleOptions = () => {
     setShowOptions(!showOptions);
@@ -117,6 +76,16 @@ export default function MyYummy() {
 
     setShowOptions(false);
   };
+
+  // Render the Add button
+  const renderAddButton = (onClickFunction, buttonText = "+") => (
+    <button
+      className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      onClick={onClickFunction}
+    >
+      {buttonText}
+    </button>
+  );
 
   return (
     <IKContext
@@ -163,40 +132,32 @@ export default function MyYummy() {
               Settings
             </button>
           </div>
+
           {/* Favorite and uploaded recipes, and meal plans */}
           <div className="w-full lg:w-2/3 px-4">
             {/* Favorite Recipes Section */}
-            <div className="mb-8">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Favorite Recipes
-              </h2>
-              {favoriteRecipes.length > 0 ? (
-                <div
-                  className="grid grid-cols-3 gap-6 overflow-auto"
-                  style={{ maxHeight: "calc(100px * 6)" }}
-                >
-                  {renderRecipeCards(favoriteRecipes)}
+            <div className="container mx-auto px-4 py-8">
+              <div className="mb-8">
+                <h2 className="text-4xl font-bold">Favorite Recipes</h2>
+                <div className="flex flex-wrap gap-4">
+                  {favoriteRecipes.length > 0 ? (
+                    renderRecipeCards(favoriteRecipes)
+                  ) : (
+                    <p>No favorite recipes added yet.</p>
+                  )}
                 </div>
-              ) : (
-                <p>No favorite recipes added yet.</p>
-              )}
-            </div>
+              </div>
 
-            {/* Uploaded Recipes Section */}
-            <div className="mb-8">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Uploaded Recipes
-              </h2>
-              {uploadedRecipes.length > 0 ? (
-                <div
-                  className="grid grid-cols-3 gap-6 overflow-auto"
-                  style={{ maxHeight: "calc(100px * 6)" }}
-                >
-                  {renderRecipeCards(uploadedRecipes)}
+              <div className="mb-8">
+                <h2 className="text-4xl font-bold">Uploaded Recipes</h2>
+                <div className="flex flex-wrap gap-4">
+                  {uploadedRecipes.length > 0 ? (
+                    renderRecipeCards(uploadedRecipes)
+                  ) : (
+                    <p>No recipes uploaded yet.</p>
+                  )}
                 </div>
-              ) : (
-                <p>No recipes uploaded yet.</p>
-              )}
+              </div>
             </div>
 
             <div className="mb-8">
@@ -215,11 +176,11 @@ export default function MyYummy() {
             </div>
           </div>
 
-          {/* Debugging: Display user object
-        <div>
-          <h3>User Object:</h3>
-          <pre>{JSON.stringify(user, null, 2)}</pre>
-        </div> */}
+          {/* Debugging: Display user object*/}
+          {/* <div>
+            <h3>User Object:</h3>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+          </div> */}
         </div>
       </div>
     </IKContext>

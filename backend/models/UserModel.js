@@ -31,7 +31,7 @@ const MealPlanSchema = new mongoose.Schema({
 });
 
 const userSchema = new mongoose.Schema({
-  name: {type: String},
+  name: { type: String, required: true },
   email: {
     type: String,
     required: true,
@@ -46,9 +46,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  bio: { type: String, default: "no bio available" },
   profileImageUrl: {
     type: String, // URL to the user's profile image
-    required: false,
+    default: "https://ik.imagekit.io/k0hnty7yv/defaultpic.jpg?updatedAt=1710591249991",
   },
   favoriteRecipes: [{ type: String, default: [] }],
   uploadedRecipes: [{ type: String, default: [] }],
