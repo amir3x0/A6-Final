@@ -52,10 +52,12 @@ const ShoppingSection = () => {
         removeRecipeFromShoppingList(recipeId);
       } else {
         updatedRecipes[recipeIndex].quantity -= 1;
+        // Update the recipesForShoppingList context
         setShoppingList(updatedRecipes);
       }
     }
   };
+
 
   const handleRemoveRecipe = (recipeId) => {
     removeRecipeFromShoppingList(recipeId);
