@@ -19,6 +19,7 @@ const RecipeSection = () => {
   const passedCategory = location.state?.category;
   const { addRecipe } = useSelectedRecipes();
   const navigate = useNavigate();
+  const fromShoppingList = location.state?.fromShoppingList || false; // Check if the flag is present in the location state
 
   useEffect(() => {
     const fetchData = async () => {

@@ -6,9 +6,9 @@ import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 const loggedInItems = [
   { name: "Home", path: "/" },
   { name: "Recipes", path: "/Recipes" },
-  { name: "Plan Meal", path: "/Plan" },
-  { name: "Share", path: "/Share" },
-  { name: "Shopping", path: "/Shopping" },
+  { name: "Meal Planner", path: "/Plan" },
+  { name: "Share A Recipe", path: "/Share" },
+  { name: "Shopping List Generator", path: "/Shopping" },
   { name: "MyYummy", path: "/MyYummy" },
 ];
 
