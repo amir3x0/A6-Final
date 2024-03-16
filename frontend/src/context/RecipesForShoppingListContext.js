@@ -10,30 +10,30 @@ export const RecipesForShoppingListProvider = ({ children }) => {
 
   const addRecipeForShoppingList = async (recipeId) => {
     try {
-      // Fetch the recipe details by ID
       const recipeDetails = await fetchRecipeById(recipeId);
-
-      // Add the fetched recipe to the state
-      setRecipesForShoppingList((prevRecipes) => {
-        // Optionally, you can check if the recipe is already added
-        const isExisting = prevRecipes.some(recipe => recipe._id === recipeDetails._id);
-        if (!isExisting) {
-          return [...prevRecipes, recipeDetails];
-        }
-        return prevRecipes;
-      });
+      
+      // Check if the recipe already exists in the list
+      const existingRecipeIndex = recipesForShoppingList.findIndex(recipe => recipe._id === recipeDetails._id);
+      if (existingRecipeIndex !== -1) {
+        // If the recipe already exists, update its quantity
+        const updatedRecipes = [...recipesForShoppingList];
+        updatedRecipes[existingRecipeIndex].quantity += 1;
+        setRecipesForShoppingList(updatedRecipes);
+      } else {
+        // If the recipe doesn't exist, add it with a quantity of 1
+        setRecipesForShoppingList(prevRecipes => [...prevRecipes, { ...recipeDetails, quantity: 1 }]);
+      }
     } catch (error) {
       console.error("Error fetching recipe details: ", error);
-      // Handle error (e.g., set error state, show notification, etc.)
     }
   };
 
-  const clearSelectedRecipes = () => {
+  const clearRecipesForShoppingList = () => {
     setRecipesForShoppingList([]);
   };
 
   return (
-    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, clearSelectedRecipes }}>
+    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, clearRecipesForShoppingList }}>
       {children}
     </RecipesForShoppingListContext.Provider>
   );
