@@ -8,7 +8,6 @@ const recipeRoutes = require('./routes/recipes');
 const userRoutes = require("./routes/users");
 const ingredientRoutes = require("./routes/ingredientRoutes");
 
-
 // Express app
 const app = express();
 
@@ -25,7 +24,6 @@ app.use("/users", userRoutes);
 app.use('/recipes', recipeRoutes);
 app.use('/ingredient', ingredientRoutes);
 // app.use(express.static(path));
-
 
 // Connect to MongoDB & listen for requests
 mongoose.connect(process.env.MONGO_URI)
