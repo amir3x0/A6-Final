@@ -1,6 +1,5 @@
 const User = require("../models/UserModel");
 const Recipe = require("../models/RecipesModel");
-const uploadToImageKit = require('../services/imageKitService');
 
 // get user
 const getUser = async (req, res) => {
@@ -48,22 +47,7 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateUserProfilePicture = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const file = req.file;
-    const imageUrl = await uploadToImageKit(file.buffer, file.originalname, "/userPics/"); // Now includes folder path
-
-    await User.findByIdAndUpdate(userId, { profileImageUrl: imageUrl });
-
-    res.status(200).json({ message: "Profile picture updated successfully", imageUrl });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to update profile picture", error: error.message });
-  }
-};
-
 module.exports = {
   createUser,
   getUser,
-  updateUserProfilePicture,
 };

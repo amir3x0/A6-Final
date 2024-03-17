@@ -71,18 +71,3 @@ export const fetchRecipeById = async (recipeId) => {
     throw new Error('Failed to fetch recipe');
   }
 };
-
-
-  // Function to handle profile picture update
-  export const handleUpload = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file); // Append the file
-      // Assuming updateUserProfileImage is an API call to your backend
-      const updatedUrl = await updateUserProfileImage(formData); // You need to implement this API call
-      // Update user state or perform necessary actions after successful upload
-      console.log("Profile picture updated:", updatedUrl);
-    } catch (error) {
-      console.error("Error updating profile picture:", error);
-    }
-  };

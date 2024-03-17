@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchRecipeById, handleUpload } from "../services/BackendService";
+import { fetchRecipeById } from "../services/BackendService";
 import RecipeCard from "../components/RecipeCard";
 import { IKContext, IKImage, IKUpload } from "imagekitio-react";
-import Modal from "../pages/profile/picturemodel";
+import Settings from "./settings"; // Adjust the import path as necessary
 
 async function fetchAvatarPics() {
   return [
@@ -23,9 +23,9 @@ export default function MyYummy() {
   const [uploadedRecipes, setUploadedRecipes] = useState([]);
   const [avatarPics, setAvatarPics] = useState([]);
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const initFetch = async () => {
@@ -49,9 +49,7 @@ export default function MyYummy() {
 
     const fetchRecipes = async (recipeIds, setter) => {
       if (recipeIds?.length > 0) {
-        const recipes = await Promise.all(
-          recipeIds.map((id) => fetchRecipeById(id))
-        );
+        const recipes = await Promise.all(recipeIds.map(id => fetchRecipeById(id)));
         setter(recipes);
       }
     };
@@ -62,30 +60,23 @@ export default function MyYummy() {
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
 
-  const renderRecipeCards = (recipes) => (
-    <div
-      className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
-        expandedRecipeId ? "lg:gap-8 xl:gap-10" : ""
-      }`}
-    >
-      {recipes.map((recipe) => (
-        <div
-          key={recipe._id}
-          className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white ${
-            expandedRecipeId === recipe._id
-              ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4"
-              : ""
-          }`}
-        >
-          <RecipeCard
-            recipe={recipe}
-            onClick={() => handleRecipeClick(recipe._id)}
-            isExpanded={expandedRecipeId === recipe._id}
-          />
-        </div>
-      ))}
-    </div>
-  );
+    const renderRecipeCards = (recipes) => (
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
+        expandedRecipeId ? 'lg:gap-8 xl:gap-10' : ''
+      }`}>
+        {recipes.map((recipe) => (
+          <div key={recipe._id} className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white ${
+            expandedRecipeId === recipe._id ? 'col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4' : ''
+          }`}>
+            <RecipeCard
+              recipe={recipe}
+              onClick={() => handleRecipeClick(recipe._id)}
+              isExpanded={expandedRecipeId === recipe._id}
+            />
+          </div>
+        ))}
+      </div>
+    );
 
   if (loadingStatus === "Loading") return <div>Loading...</div>;
   if (loadingStatus === "Error") return <div>Error: {error}</div>;
@@ -95,12 +86,6 @@ export default function MyYummy() {
   };
   const toggleOptions = () => setShowOptions(!showOptions);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleEnlargeImage = () => {
-    setIsModalOpen(true);
-  };
-
   return (
     <IKContext
       publicKey="your_public_api_key"
@@ -108,27 +93,29 @@ export default function MyYummy() {
       transformationPosition="path"
       authenticationEndpoint="http://www.yourserver.com/auth"
     >
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <img
-          src={user.profileImageUrl || "default_profile_image_url"}
-          alt="Profile"
-          className="max-w-full h-auto rounded-lg"
-        />
-      </Modal>
-
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap -mb-4">
           {/* Profile Section */}
           <div className="w-full sm:w-1/2 lg:w-1/3 p-4">
             <div className="flex flex-col items-center bg-white rounded-lg shadow-xl relative">
-          <img src={user.profileImageUrl || "default_profile_image_url"} alt="Profile" className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 cursor-pointer" onClick={toggleDropdown}/>
-          {showDropdown && (
-            <div className="absolute mt-2 py-2 w-48 bg-white rounded-md shadow-xl z-20">
-              <a href="#" className="block px-4 py-2 text-sm capitalize text-gray-700 hover:bg-blue-500 hover:text-white" onClick={handleEnlargeImage}>Enlarge</a>
-              <a href="#" className="block px-4 py-2 text-sm capitalize text-gray-700 hover:bg-blue-500 hover:text-white" onClick={() => console.log('Choose from API')}>Choose from API</a>
-              <IKUpload fileName="avatar.jpg" tags={["avatar"]} folder={"/userPics"} onSuccess={(response) => handleUpload(response.file)} onError={(error) => console.error('Upload Error:', error)} />
-            </div>
-          )}
+              <img
+                src={user.profileImageUrl || "default_profile_image_url"}
+                alt="Profile"
+                className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 cursor-pointer"
+                onClick={toggleOptions}
+              />
+              {showOptions && (
+                <div className="options-overlay absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center bg-black bg-opacity-50">
+                  {avatarPics.map((avatarPath, index) => (
+                    <IKImage
+                      key={index}
+                      path={avatarPath}
+                      transformation={[{ height: "100", width: "100" }]}
+                      onClick={() => console.log(`Avatar ${index} selected`)}
+                    />
+                  ))}
+                </div>
+              )}
               {/* User Details */}
               <h2 className="text-2xl md:text-3xl font-extrabold text-center mt-4 text-blue-600">
                 {user.name}
