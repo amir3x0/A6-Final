@@ -71,3 +71,14 @@ export const fetchRecipeById = async (recipeId) => {
     throw new Error('Failed to fetch recipe');
   }
 };
+
+
+export const  fetchMealPlansbyId = async (mealId) => {
+  try {
+    const response = await axios.get(`${API_URL}/meals/loadmeal/${mealId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Axios error fetching meal plans:", error.response ? error.response.data : error.message);
+    throw new Error("Failed to fetch the meal plans.");
+  }
+};

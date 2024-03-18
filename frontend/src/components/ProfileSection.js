@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchRecipeById } from "../services/BackendService";
+import { fetchRecipeById, fetchMealPlansbyId } from "../services/BackendService";
 import RecipeCard from "../components/RecipeCard";
 import { IKContext, IKImage, IKUpload } from "imagekitio-react";
-import Settings from "./settings"; // Adjust the import path as necessary
+import Settings from "../pages/profile/settings"; // Adjust the import path as necessary
 
 async function fetchAvatarPics() {
   return [
@@ -21,6 +21,7 @@ export default function MyYummy() {
   const [error, setError] = useState("");
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [uploadedRecipes, setUploadedRecipes] = useState([]);
+  const [MealPlans, setMealPlans] = useState([]);
   const [avatarPics, setAvatarPics] = useState([]);
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -36,6 +37,7 @@ export default function MyYummy() {
           setAvatarPics(avatarPicsResult);
           await fetchRecipes(user.favoriteRecipes, setFavoriteRecipes);
           await fetchRecipes(user.uploadedRecipes, setUploadedRecipes);
+          await fetchMealPlans(user.MealPlans, setMealPlans);
           setLoadingStatus("Loaded");
         } else {
           throw new Error("User data not available");
@@ -49,8 +51,19 @@ export default function MyYummy() {
 
     const fetchRecipes = async (recipeIds, setter) => {
       if (recipeIds?.length > 0) {
-        const recipes = await Promise.all(recipeIds.map(id => fetchRecipeById(id)));
+        const recipes = await Promise.all(
+          recipeIds.map((id) => fetchRecipeById(id))
+        );
         setter(recipes);
+      }
+    };
+
+    const fetchMealPlans = async (mealPlanIds, setter) => {
+      if (mealPlanIds?.length > 0) {
+        const mealPlans = await Promise.all(
+          mealPlanIds.map((id) => fetchMealPlansbyId(id))
+        );
+        setter(mealPlans);
       }
     };
 
@@ -60,23 +73,30 @@ export default function MyYummy() {
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
 
-    const renderRecipeCards = (recipes) => (
-      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
-        expandedRecipeId ? 'lg:gap-8 xl:gap-10' : ''
-      }`}>
-        {recipes.map((recipe) => (
-          <div key={recipe._id} className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white ${
-            expandedRecipeId === recipe._id ? 'col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4' : ''
-          }`}>
-            <RecipeCard
-              recipe={recipe}
-              onClick={() => handleRecipeClick(recipe._id)}
-              isExpanded={expandedRecipeId === recipe._id}
-            />
-          </div>
-        ))}
-      </div>
-    );
+  const renderRecipeCards = (recipes) => (
+    <div
+      className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
+        expandedRecipeId ? "lg:gap-8 xl:gap-10" : ""
+      }`}
+    >
+      {recipes.map((recipe) => (
+        <div
+          key={recipe._id}
+          className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white ${
+            expandedRecipeId === recipe._id
+              ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4"
+              : ""
+          }`}
+        >
+          <RecipeCard
+            recipe={recipe}
+            onClick={() => handleRecipeClick(recipe._id)}
+            isExpanded={expandedRecipeId === recipe._id}
+          />
+        </div>
+      ))}
+    </div>
+  );
 
   if (loadingStatus === "Loading") return <div>Loading...</div>;
   if (loadingStatus === "Error") return <div>Error: {error}</div>;
@@ -86,12 +106,22 @@ export default function MyYummy() {
   };
   const toggleOptions = () => setShowOptions(!showOptions);
 
+  let temp = "start";
+
+  const onSuccess = (response) => {
+    console.log(response);
+  };
+
+  const onError = (error) => {
+    console.log(error);
+  };
+
   return (
     <IKContext
-      publicKey="your_public_api_key"
-      urlEndpoint="https://ik.imagekit.io/k0hnty7yv"
-      transformationPosition="path"
-      authenticationEndpoint="http://www.yourserver.com/auth"
+      publicKey="public_zi8VqYVIZTCyZWjVNDLt1qeq2ag="
+      urlEndpoint="https://ik.imagekit.io/k0hnty7yv/"
+      // transformationPosition="path"
+      // authenticationEndpoint="http://www.yourserver.com/auth"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap -mb-4">
@@ -133,6 +163,19 @@ export default function MyYummy() {
                 Settings
               </button>
             </div>
+
+            <div className="upload-section">
+              <h3 className="text-2xl font-bold mt-8">Upload Image</h3>
+              <IKUpload
+                fileName="profile_image"
+                tags={["profile_image"]}
+                useUniqueFileName={true}
+                onError={(error) => (temp = "error")}
+                onSuccess={(response) => (temp = "cool")}
+              />
+              folder="/profile_images"
+              {temp}
+            </div>
           </div>
 
           {/* Recipes and Meal Plans */}
@@ -158,8 +201,8 @@ export default function MyYummy() {
               </h2>
               {user.MealPlans && user.MealPlans.length > 0 ? (
                 user.MealPlans.map((plan) => (
-                  <div key={plan.id} className="py-2">
-                    {plan.title}
+                  <div key={plan.name} className="py-2">
+                    {plan.name}
                   </div>
                 ))
               ) : (
