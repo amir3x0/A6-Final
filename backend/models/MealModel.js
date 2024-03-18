@@ -8,11 +8,11 @@ const mealSchema = new Schema({
         required: true,
     },
     recipes: [
-        {type: String, default: []} ],
+        { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', default: [] }],
     username: {
         type: String,
         required: true,
-        // ref: 'User',
+        ref: 'User',
     },
 });
 
