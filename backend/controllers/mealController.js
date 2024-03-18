@@ -28,7 +28,7 @@ const getMeal = async (req, res) => {
     };
 
     console.log(JSON.stringify(mealWithRecipes , null, 1)); 
-    res.status(200).json(meal);
+    res.status(200).json(mealWithRecipes);
   } catch (error) {
     console.error(error); 
     res.status(500).json({ error: "Server error fetching meal" });

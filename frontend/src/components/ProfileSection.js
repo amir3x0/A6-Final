@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { fetchRecipeById, fetchMealPlansbyId } from "../services/BackendService";
-import RecipeCard from "../components/RecipeCard";
+import RecipeCard from "./RecipeCard";
+import MealCard from "./MealCard";
 import { IKContext, IKImage, IKUpload } from "imagekitio-react";
 import Settings from "../pages/profile/settings"; // Adjust the import path as necessary
 
@@ -93,6 +94,19 @@ export default function MyYummy() {
             onClick={() => handleRecipeClick(recipe._id)}
             isExpanded={expandedRecipeId === recipe._id}
           />
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderMealPlans = (mealPlans) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {mealPlans.map((meal) => (
+        <div
+          key={meal._id}
+          className="p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white"
+        >
+          <MealCard meal={meal} />
         </div>
       ))}
     </div>
@@ -199,15 +213,7 @@ export default function MyYummy() {
               <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
                 Meal Plans
               </h2>
-              {user.MealPlans && user.MealPlans.length > 0 ? (
-                user.MealPlans.map((plan) => (
-                  <div key={plan.name} className="py-2">
-                    {plan.name}
-                  </div>
-                ))
-              ) : (
-                <p>No meal plans added yet.</p>
-              )}
+              {renderMealPlans(MealPlans)}
             </div>
           </div>
         </div>
