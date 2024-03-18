@@ -1,31 +1,77 @@
-import React, { useState } from 'react';
-import RecipeCard from './RecipeCard'; // Assuming RecipeCard is in the same directory
+import React, { useState } from "react";
+import RecipeCard from "./RecipeCard";
 
-// This component will accept a meal object and render a card for the meal
-// and individual cards for each recipe within the meal
-const MealCard = ({ meal }) => {
-  // State to control which recipe card is expanded, if any
-  const [expandedRecipeId, setExpandedRecipeId] = useState(null);
+const MealCard = ({ meal , onExpandChange  }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  // Function to toggle expanded state of recipe cards
-  const toggleRecipeExpand = (id) => {
-    setExpandedRecipeId(expandedRecipeId === id ? null : id);
+  const renderCollage = () => {
+    const images = meal.recipes.map((recipe, index) => (
+      <img
+        key={index}
+        src={recipe.picture}
+        alt={recipe.title}
+        className={`w-full ${
+          meal.recipes.length > 4 ? "h-full" : "h-2/3"
+        } object-cover ${index > 3 ? "hidden" : ""}`}
+        style={{ maxHeight: "400px" }}
+      />
+    ));
+
+    const gridTemplateColumns = {
+      2: "grid-cols-2",
+      3: "grid-cols-3",
+      4: "grid-cols-2",
+    };
+
+    return (
+      <div
+        className={`grid ${
+          gridTemplateColumns[meal.recipes.length] || "grid-cols-1"
+        } gap-1 cursor-pointer`}
+        onClick={toggleExpand}
+      >
+        {images}
+      </div>
+    );
+  };
+
+  const toggleExpand = () => {
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
+    onExpandChange(meal._id, newExpandedState); 
   };
 
   return (
-    <div className="meal-card border border-gray-300 rounded-lg p-4 shadow-md">
-      <h2 className="text-xl font-bold mb-4">{meal.name}</h2>
-      <div className="recipes-container space-y-4">
-        {meal.recipes.map((recipe) => (
-          <RecipeCard
-            key={recipe._id}
-            recipe={recipe}
-            isExpanded={expandedRecipeId === recipe._id}
-            onClick={() => toggleRecipeExpand(recipe._id)}
-            showSelectButton={false} // Assuming we don't want to show select button on meal recipes
-          />
-        ))}
-      </div>
+    <div
+      onClick={toggleExpand} // Toggle expand on the entire meal card
+      className={`meal-card border border-gray-300 rounded-lg shadow-md transition-all duration-300 ease-in-out overflow-hidden ${
+        isExpanded ? "p-8 w-full" : "p-4"
+      } cursor-pointer`}
+    >
+      <h2 className="text-2xl font-extrabold mb-6 text-green-800 hover:text-green-600 transition-colors duration-200 ease-in-out cursor-pointer">{meal.name}</h2>
+      {isExpanded ? (
+        <div className="recipes-expanded space-y-4 w-full">
+          {meal.recipes.map((recipe) => (
+            <RecipeCard
+              key={recipe._id}
+              recipe={recipe}
+              isExpanded={true}
+              showSelectButton={false}
+            />
+          ))}
+        </div>
+      ) : (
+        <>
+          {renderCollage()}
+          <div className="mt-4">
+            <ul className="list-disc pl-5">
+              {meal.recipes.map((recipe) => (
+                <li key={recipe._id}>{recipe.title}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
 };

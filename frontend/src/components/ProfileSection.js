@@ -28,6 +28,7 @@ export default function MyYummy() {
   const [showSettings, setShowSettings] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [expandedMealId, setExpandedMealId] = useState(null);
 
   useEffect(() => {
     const initFetch = async () => {
@@ -99,18 +100,25 @@ export default function MyYummy() {
     </div>
   );
 
+  const handleExpandChange = (mealId, isExpanded) => {
+    setExpandedMealId(isExpanded ? mealId : null);
+  };
+
   const renderMealPlans = (mealPlans) => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {mealPlans.map((meal) => (
         <div
           key={meal._id}
-          className="p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white"
+          className={`meal-plan-container transition duration-300 transform hover:-translate-y-1 ${
+            expandedMealId === meal._id ? 'sm:col-span-2 lg:col-span-3 xl:col-span-4' : 'col-span-1'
+          }`} 
         >
-          <MealCard meal={meal} />
+          <MealCard meal={meal} onExpandChange={handleExpandChange} />
         </div>
       ))}
     </div>
   );
+  
 
   if (loadingStatus === "Loading") return <div>Loading...</div>;
   if (loadingStatus === "Error") return <div>Error: {error}</div>;
