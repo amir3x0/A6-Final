@@ -15,12 +15,10 @@ const Share = () => {
   const [instructions, setInstructions] = useState([""]);
   const [imageUrl, setImageUrl] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalNutrition, setTotalNutrition] = useState({
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-  });
+  const [totalNutrition, setTotalNutrition] = useState({total: 0,
+                                                        protein: 0,
+                                                        carbs: 0,
+                                                        fat: 0,});
   let shareMsg = "";
 
   const fetchIngredients = async (query) => {
@@ -54,6 +52,10 @@ const Share = () => {
             quantity: "",
             unit: detailedInfo.possibleUnits[0], // Use the first unit as default
             possibleUnits: detailedInfo.possibleUnits,
+            // total: ingredient.nutrition.nutrients.find(n => n.name === "Calories")?.amount || 0,
+            // fat: ingredient.nutrition.nutrients.find(n => n.name === "Fat")?.amount || 0,
+            // carbs: ingredient.nutrition.nutrients.find(n => n.name === "Carbohydrates")?.amount || 0,
+            // protein: ingredient.nutrition.nutrients.find(n => n.name === "Protein")?.amount || 0,
           },
         ]);
       }
@@ -84,7 +86,23 @@ const Share = () => {
       return ingredient;
     });
     setSelectedIngredients(updatedIngredients);
+    // calculateTotalNutrition();
   };
+
+  // const calculateTotalNutrition = () => {
+  //   const totals = selectedIngredients.reduce(
+  //     (acc, item) => {
+  //       const quantityFactor = parseFloat(item.quantity) || 0; // Convert to number and handle non-numeric inputs gracefully
+  //       acc.total += item.total * quantityFactor;
+  //       acc.protein += item.protein * quantityFactor;
+  //       acc.carbs += item.carbs * quantityFactor;
+  //       acc.fat += item.fat * quantityFactor;
+  //       return acc;
+  //     },
+  //     { total: 0, protein: 0, carbs: 0, fat: 0 }
+  //   );
+  //   setTotalNutrition(totals); // Update the state with the new totals
+  // };
 
   const handleAddInstruction = () => {
     setInstructions([...instructions, ""]); // Add an empty string for the new step
@@ -119,17 +137,24 @@ const Share = () => {
   };
 
   const handleShare = async () => {
+    const ingredientsForShare = selectedIngredients.map((ingredient) => ({
+      name: ingredient.name,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+    }));
+
     const recipeData = {
       title: recipeName,
       difficulty: difficulty,
       category: mealCategory,
       description: description,
       instructions: instructions,
-      ingredients: selectedIngredients,
+      ingredients: ingredientsForShare,
       calories: calories,
       picture: imageUrl,
       Chef: user.username,
     };
+
     const res = await shareRecipe(recipeData);
     if (res) {
       setDescription("");
@@ -311,16 +336,12 @@ const Share = () => {
                 placeholder="Quantity"
                 value={ingredient.quantity}
                 className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                onChange={(e) =>
-                  updateSelectedIngredient(index, "quantity", e.target.value)
-                }
+                onChange={(e) => updateSelectedIngredient(index, "quantity", e.target.value)}
               />
               <select
                 className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={ingredient.unit}
-                onChange={(e) =>
-                  updateSelectedIngredient(index, "unit", e.target.value)
-                }
+                onChange={(e) => updateSelectedIngredient(index, "unit", e.target.value)}
               >
                 {ingredient.possibleUnits?.map((unit, unitIndex) => (
                   <option key={unitIndex} value={unit}>
@@ -343,7 +364,7 @@ const Share = () => {
       <div className="flex justify-center mt-6">
         <div className="grid grid-cols-4 gap-4 items-center text-center">
           <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg shadow">
-            Total Calories: {totalNutrition.calories.toFixed(2)}
+            Total Calories: {totalNutrition.total.toFixed(2)}
           </div>
           <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow">
             Total Protein: {totalNutrition.protein.toFixed(2)}g
