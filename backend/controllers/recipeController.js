@@ -17,49 +17,26 @@ const getRecipe = async (req, res) => {
     if (!recipe) {
       return res.status(404).json({ error: "No such recipe" });
     }
-    // console.log(JSON.stringify(recipe, null, 2)); 
+    // console.log(JSON.stringify(recipe, null, 2));
     res.status(200).json(recipe);
   } catch (error) {
-    console.error(error); 
+    console.error(error);
     res.status(500).json({ error: "Server error fetching recipe" });
   }
 };
 
-// create new recipe
-const createRecipe = async (req, res) => {
-  const {
-    title,
-    difficulty,
-    category,
-    description,
-    instructions,
-    ingredients,
-    calories,
-    picture,
-  } = req.body;
-
+// Share recipe
+const shareRecipe = async (req, res) => {
   try {
-    // Create a new recipe document based on the Recipe schema
-    const recipe = await Recipe.create({
-      title,
-      difficulty,
-      category,
-      description,
-      instructions,
-      ingredients,
-      calories,
-      picture,
-    });
-
-    // Log the created recipe object to the console
-    console.log("Created recipe:", recipe);
-
-    res.status(201).json(recipe); // Send the created recipe as a response
+    console.log(req.body);
+    const recipe = new Recipe(req.body);
+    // Saving the recipe document to the database
+    await recipe.save();
+    res.status(200).json({ message: "Recipe shared successfully!", recipe });
   } catch (error) {
     // Log the error
     console.error("Error creating recipe:", error);
-
-    res.status(400).json({ error: error.message }); // Handle errors
+    res.status(500).json({ error: error.message }); // Handle errors
   }
 };
 
@@ -109,7 +86,7 @@ const updateRecipe = async (req, res) => {
 module.exports = {
   getRecipe,
   getRecipes,
-  createRecipe,
+  shareRecipe,
   deleteRecipe,
   updateRecipe,
 };

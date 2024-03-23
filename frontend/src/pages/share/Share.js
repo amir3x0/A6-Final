@@ -1,38 +1,108 @@
 import React, { useState } from "react";
-// import { IKContext, IKUpload } from "imagekitio-react";
-
-import ImageKit from "imagekit-javascript";
-
-const imageKit = new ImageKit({
-  publicKey: "public_TrkjublcF+FkOwFoAOn63qvn8QI=",
-  urlEndpoint: "https://ik.imagekit.io/Misha/Home/",
-});
+import { useUser } from "../../context/UserContext";
+import { shareRecipe } from "../../services/BackendService";
 
 const Share = () => {
   document.title = "Share Recipe";
+  const apiKey = "b53b0012d84a4a5284dd99e12b127fde";
+  const { user } = useUser();
   const [recipeName, setRecipeName] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [ingredientType, setIngredientType] = useState("");
-  const [ingredients, setIngredients] = useState([]);
+  const [searchResults, setSearchResults] = useState([]); // To store API search results
+  const [selectedIngredients, setSelectedIngredients] = useState([]); // To store user-selected ingredients with details
   const [description, setDescription] = useState("");
-  const [selectedIngredients, setSelectedIngredients] = useState([]);
-  const [ingredientQuantities, setIngredientQuantities] = useState({});
   const [mealCategory, setMealCategory] = useState("");
   const [instructions, setInstructions] = useState([""]);
   const [imageUrl, setImageUrl] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [totalNutrition, setTotalNutrition] = useState({total: 0,
+                                                        protein: 0,
+                                                        carbs: 0,
+                                                        fat: 0,});
+  let shareMsg = "";
 
-  function uploadImage(file) {
-    imageKit.upload(
-      {
-        file: file,
-        fileName: "your_desired_file_name.jpg",
-      },
-      (err, result) => {
-        if (err) console.log(err);
-        else console.log(result);
+  const fetchIngredients = async (query) => {
+    const url = `https://api.spoonacular.com/food/ingredients/search?query=${query}&apiKey=${apiKey}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setSearchResults(data.results);
+    } catch (error) {
+      console.error("Error fetching ingredients:", error);
+    }
+  };
+
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    setSearchTerm(query);
+    fetchIngredients(query);
+  };
+
+  const addIngredient = async (ingredient) => {
+    if (!selectedIngredients.some((item) => item.id === ingredient.id)) {
+      // Fetch detailed information including possibleUnits for the selected ingredient
+      const detailedInfo = await fetchIngredientDetails(ingredient.id);
+      if (detailedInfo) {
+        setSelectedIngredients((prev) => [
+          ...prev,
+          {
+            id: ingredient.id,
+            name: ingredient.name,
+            quantity: "",
+            unit: detailedInfo.possibleUnits[0], // Use the first unit as default
+            possibleUnits: detailedInfo.possibleUnits,
+            // total: ingredient.nutrition.nutrients.find(n => n.name === "Calories")?.amount || 0,
+            // fat: ingredient.nutrition.nutrients.find(n => n.name === "Fat")?.amount || 0,
+            // carbs: ingredient.nutrition.nutrients.find(n => n.name === "Carbohydrates")?.amount || 0,
+            // protein: ingredient.nutrition.nutrients.find(n => n.name === "Protein")?.amount || 0,
+          },
+        ]);
       }
-    );
-  }
+    }
+  };
+
+  const fetchIngredientDetails = async (ingredientId) => {
+    const url = `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?apiKey=${apiKey}&amount=1`;
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error("Failed to fetch ingredient details");
+      }
+    } catch (error) {
+      console.error("Error fetching ingredient details:", error);
+      return null;
+    }
+  };
+
+  const updateSelectedIngredient = (index, field, value) => {
+    const updatedIngredients = selectedIngredients.map((ingredient, i) => {
+      if (i === index) {
+        return { ...ingredient, [field]: value };
+      }
+      return ingredient;
+    });
+    setSelectedIngredients(updatedIngredients);
+    // calculateTotalNutrition();
+  };
+
+  // const calculateTotalNutrition = () => {
+  //   const totals = selectedIngredients.reduce(
+  //     (acc, item) => {
+  //       const quantityFactor = parseFloat(item.quantity) || 0; // Convert to number and handle non-numeric inputs gracefully
+  //       acc.total += item.total * quantityFactor;
+  //       acc.protein += item.protein * quantityFactor;
+  //       acc.carbs += item.carbs * quantityFactor;
+  //       acc.fat += item.fat * quantityFactor;
+  //       return acc;
+  //     },
+  //     { total: 0, protein: 0, carbs: 0, fat: 0 }
+  //   );
+  //   setTotalNutrition(totals); // Update the state with the new totals
+  // };
 
   const handleAddInstruction = () => {
     setInstructions([...instructions, ""]); // Add an empty string for the new step
@@ -53,42 +123,55 @@ const Share = () => {
     setMealCategory(e.target.value);
   };
 
-  const handleIngredientTypeChange = (e) => {
-    const selectedType = e.target.value;
-    setIngredientType(selectedType);
-    setSelectedIngredients(ingredientTypes[selectedType] || []);
+  const removeSelectedIngredient = (index) => {
+    setSelectedIngredients(
+      selectedIngredients.filter((_, idx) => idx !== index)
+    );
   };
 
-  const handleAddIngredient = (ingredient) => {
-    if (!ingredients.includes(ingredient)) {
-      setIngredients([...ingredients, ingredient]);
-      setIngredientQuantities({ ...ingredientQuantities, [ingredient]: "" }); // Initialize with an empty string for the amount
+  const calories = {
+    total: 250,
+    protein: 15,
+    carbs: 10,
+    fat: 18,
+  };
+
+  const handleShare = async () => {
+    const ingredientsForShare = selectedIngredients.map((ingredient) => ({
+      name: ingredient.name,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+    }));
+
+    const recipeData = {
+      title: recipeName,
+      difficulty: difficulty,
+      category: mealCategory,
+      description: description,
+      instructions: instructions,
+      ingredients: ingredientsForShare,
+      calories: calories,
+      picture: imageUrl,
+      Chef: user.username,
+    };
+
+    const res = await shareRecipe(recipeData);
+    if (res) {
+      setDescription("");
+      setDifficulty("");
+      setImageUrl("");
+      setSelectedIngredients([]);
+      setInstructions([""]);
+      setMealCategory("");
+      setRecipeName("");
+      shareMsg = "Your Recipe Published !";
+    } else {
+      shareMsg = "Something Went Wrong !";
     }
   };
 
-  const updateIngredientAmount = (ingredient, amount) => {
-    setIngredientQuantities({ ...ingredientQuantities, [ingredient]: amount });
-  };
-
-  const handleDeleteIngredient = (ingredient) => {
-    setIngredients(ingredients.filter((item) => item !== ingredient));
-    const { [ingredient]: _, ...remainingQuantities } = ingredientQuantities;
-    setIngredientQuantities(remainingQuantities);
-  };
-
-  const handleShare = () => {
-    //TODO Send stuff to db.
-  };
-
-  const ingredientTypes = {
-    Vegetables: ["Carrots", "Broccoli", "Spinach", "Tomatoes"],
-    Proteins: ["Chicken", "Beef", "Fish", "Tofu"],
-    Grains: ["Rice", "Quinoa", "Pasta", "Bread"],
-    Fruits: ["Apples", "Bananas", "Oranges", "Berries"],
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-50 shadow-lg">
+    <div className="max-w-6xl mx-auto p-6 bg-gray-50 shadow-lg">
       <h1 className="flex justify-center text-4xl font-semibold text-gray-800 my-10">
         Share Your Recipe
       </h1>
@@ -137,10 +220,10 @@ const Share = () => {
             className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           >
             <option value="">Select Difficulty</option>
-            <option value="easy">Easy</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="hard">Hard</option>
-            <option value="chef">Chef Level</option>
+            <option value="Easy">Easy</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Hard">Hard</option>
+            <option value="Chef Level">Chef Level</option>
           </select>
         </div>
 
@@ -156,10 +239,10 @@ const Share = () => {
             className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           >
             <option value="">Select Meal Category</option>
-            <option value="appetizers">Appetizers</option>
-            <option value="starters">Starters</option>
-            <option value="mainCourse">Main Course</option>
-            <option value="desserts">Desserts</option>
+            <option value="Appetizers">Appetizers</option>
+            <option value="Starters">Starters</option>
+            <option value="Main Dish">Main Course</option>
+            <option value="Dessert">Desserts</option>
           </select>
         </div>
 
@@ -212,88 +295,87 @@ const Share = () => {
           </div>
         </div>
 
-        {/* Ingredient Type */}
-        <div className="col-span-1 md:col-span-2">
-          <label
-            htmlFor="ingredientType"
-            className="block text-gray-700 text-lg font-bold mb-2"
-          >
-            Ingredient Type
-          </label>
-          <select
-            id="ingredientType"
-            value={ingredientType}
-            onChange={handleIngredientTypeChange}
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          >
-            <option value="">Select Ingredient Type</option>
-            {Object.keys(ingredientTypes).map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+        {/* Ingredient Search */}
+        <div>
+          <p className="font-semibold text-lg text-gray-700 mb-4">
+            Search Ingredients
+          </p>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearch}
+            className="border-gray-300 rounded-lg py-2 px-4 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+          <ul className="list-none">
+            {searchResults &&
+              searchResults.map((ingredient) => (
+                <li
+                  key={ingredient.id}
+                  onClick={() => addIngredient(ingredient)}
+                  className="cursor-pointer p-2 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out"
+                >
+                  {ingredient.name}
+                </li>
+              ))}
+          </ul>
         </div>
 
         {/* Selected Ingredients */}
-        <div className="col-span-1 md:col-span-2">
-          {selectedIngredients.length > 0 && (
-            <>
-              <label className="block text-gray-700 text-lg font-bold mb-2">
-                Choose Ingredients
-              </label>
-              <div className="flex flex-wrap justify-center gap-2">
-                {selectedIngredients.map((ingredient) => (
-                  <button
-                    key={ingredient}
-                    onClick={() => handleAddIngredient(ingredient)}
-                    className={`px-4 py-2 rounded-full text-white ${
-                      ingredients.includes(ingredient)
-                        ? "bg-blue-500"
-                        : "bg-gray-500"
-                    }`}
-                  >
-                    {ingredient}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+        <div>
+          <p className="font-semibold text-lg text-gray-700 mb-4">
+            Selected Ingredients
+          </p>
+          {selectedIngredients.map((ingredient, index) => (
+            <div
+              key={index}
+              className="flex items-center space-x-2 mb-4 bg-gray-50 p-4 rounded-lg shadow"
+            >
+              <span className="flex-grow">{ingredient.name}</span>
+              <input
+                type="number"
+                placeholder="Quantity"
+                value={ingredient.quantity}
+                className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                onChange={(e) => updateSelectedIngredient(index, "quantity", e.target.value)}
+              />
+              <select
+                className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={ingredient.unit}
+                onChange={(e) => updateSelectedIngredient(index, "unit", e.target.value)}
+              >
+                {ingredient.possibleUnits?.map((unit, unitIndex) => (
+                  <option key={unitIndex} value={unit}>
+                    {unit}
+                  </option>
+                )) || <option value="unit">Unit</option>}
+              </select>
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                onClick={() => removeSelectedIngredient(index)}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Selected Ingredients info */}
-        {ingredients.length > 0 && (
-          <div className="col-span-1 md:col-span-2">
-            <label className="block text-gray-700 text-lg font-bold mb-2">
-              Necessary Ingredients and Quantities
-            </label>
-            <ul>
-              {ingredients.map((ingredient) => (
-                <li
-                  key={ingredient}
-                  className="flex justify-center items-center gap-5 mb-2"
-                >
-                  {ingredient}
-                  <input
-                    type="text"
-                    placeholder="Amount (e.g., 2 cups)"
-                    value={ingredientQuantities[ingredient]}
-                    onChange={(e) =>
-                      updateIngredientAmount(ingredient, e.target.value)
-                    }
-                    className="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  />
-                  <button
-                    onClick={() => handleDeleteIngredient(ingredient)}
-                    className="text-red-500 font-bold hover:text-red-700 ml-4"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
+      {/* Nutritional Info */}
+      <div className="flex justify-center mt-6">
+        <div className="grid grid-cols-4 gap-4 items-center text-center">
+          <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg shadow">
+            Total Calories: {totalNutrition.total.toFixed(2)}
           </div>
-        )}
+          <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow">
+            Total Protein: {totalNutrition.protein.toFixed(2)}g
+          </div>
+          <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg shadow">
+            Total Carbs: {totalNutrition.carbs.toFixed(2)}g
+          </div>
+          <div className="bg-red-100 text-red-800 px-4 py-2 rounded-lg shadow">
+            Total Fat: {totalNutrition.fat.toFixed(2)}g
+          </div>
+        </div>
       </div>
 
       {/* Share Button */}
@@ -305,6 +387,8 @@ const Share = () => {
           Share
         </button>
       </div>
+
+      <div className="text-lg">{shareMsg}</div>
     </div>
   );
 };

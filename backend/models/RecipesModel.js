@@ -38,6 +38,10 @@ const recipeSchema = new Schema({
         required: true,
       },
       quantity: {
+        type: Number,
+        required: true,
+      },
+      unit: {
         type: String,
         required: true,
       },
