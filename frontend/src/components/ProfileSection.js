@@ -52,7 +52,7 @@ export default function MyYummy() {
     };
 
     const fetchRecipes = async (recipeIds, setter) => {
-      if (recipeIds?.length > 0) {
+      if (recipeIds.length > 0) {
         const recipes = await Promise.all(
           recipeIds.map((id) => fetchRecipeById(id))
         );
@@ -61,7 +61,7 @@ export default function MyYummy() {
     };
 
     const fetchMealPlans = async (mealPlanIds, setter) => {
-      if (mealPlanIds?.length > 0) {
+      if (mealPlanIds.length > 0) {
         const mealPlans = await Promise.all(
           mealPlanIds.map((id) => fetchMealPlansbyId(id))
         );
