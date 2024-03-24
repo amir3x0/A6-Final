@@ -102,3 +102,13 @@ export const addFavoriteRecipe = async (recipeId, userId) => {
     return false;
   }
 };
+
+export const removeFavoriteRecipe = async (recipeId, userId) => {
+  try {
+    await axios.delete(`${API_URL}/users/deletefavorite`, {recipeId, userId });
+    return true;
+  } catch (error) {
+    console.error("Error removing favorite recipe:", error);
+    return false;
+  }
+};

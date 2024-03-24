@@ -1,5 +1,5 @@
 const express = require("express");
-const { createUser, getUser, addFavorite } = require("../controllers/userController");
+const { createUser, getUser, addFavorite , removeFavorite} = require("../controllers/userController");
 const verifyToken = require("../middlewares/authmiddleware"); 
 // const { addfavoriteRecipe } = require("../../frontend/src/services/BackendService");
 const router = express.Router();
@@ -11,6 +11,8 @@ router.post("/login", getUser);
 router.post("/", createUser);
 
 router.post("/favorite", addFavorite);
+
+router.delete("/deletefavorite", removeFavorite);
 
 module.exports = router;
 

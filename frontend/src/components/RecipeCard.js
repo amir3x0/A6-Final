@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { addFavoriteRecipe } from "../services/BackendService";
+import { addFavoriteRecipe , removeFavoriteRecipe } from "../services/BackendService";
 import { useUser } from "../context/UserContext";
 
 // Enum for recipe categories
@@ -26,21 +26,29 @@ const RecipeCard = ({
   const [liked, setLiked] = useState(isLiked);
 
   const handleLike = async () => {
-    setLiked(!liked);
-    if (!liked) {
-      // Assuming 'addFavoriteRecipe' is accessible here, either via import or defined in this file
-      const success = await addFavoriteRecipe(recipe._id, user._id); // Pass both recipeId and userId
-
-      if (!success) {
-        // Handle failure (optional)
-        console.error("Failed to add to favorites");
-        setLiked(false); // Optionally revert the like state if the backend call fails
+    // If the recipe is already liked, unlike it
+    if (liked) {
+      const success = await removeFavoriteRecipe(recipe._id, user._id);
+      if (success) {
+        const updatedFavorites = user.favoriteRecipes.filter(id => id !== recipe._id);
+        updateUser({ favoriteRecipes: updatedFavorites });
+        setLiked(false);
       } else {
-        updateUser({ favoriteRecipes: [...user.favoriteRecipes, recipe._id] }); // Update the user context with the new favorite recipe
+        console.error("Failed to remove from favorites");
+      }
+    } else {
+      const success = await addFavoriteRecipe(recipe._id, user._id);
+      if (success) {
+        updateUser({ favoriteRecipes: [...user.favoriteRecipes, recipe._id] });
+        setLiked(true);
+      } else {
+        console.error("Failed to add to favorites");
+        // Ensure the UI reflects the failed operation appropriately
+        setLiked(false);
       }
     }
-    // Handle unlike if needed
   };
+  
 
   // Function to handle select button click without propagating to card click
   const handleSelectClick = (e) => {
