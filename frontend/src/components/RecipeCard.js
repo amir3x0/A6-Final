@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+
 
 // Enum for recipe categories
 const CategoryLabels = {
@@ -18,6 +20,8 @@ const RecipeCard = ({
   showAddIngredientsButton, // New prop to control the display of the "Add Ingredients" button
   onAddIngredients, // New prop to handle the "Add Ingredients" button click
 }) => {
+  const [isLiked, setIsLiked] = useState(false);
+
   // Function to handle select button click without propagating to card click
   const handleSelectClick = (e) => {
     e.stopPropagation(); // Prevent onClick for the card from being called
@@ -28,7 +32,11 @@ const RecipeCard = ({
     onAddIngredients(recipe.ingredients);
   };
 
-  
+
+  const toggleLike = (e) => {
+    e.stopPropagation(); // Prevent card click
+    setIsLiked(!isLiked);
+  };
 
   return (
     <div
@@ -43,7 +51,12 @@ const RecipeCard = ({
         className="w-full h-48 object-cover"
       />
       <div className={`p-4 ${isExpanded ? "px-8 py-6" : "px-4 py-4"}`}>
-        <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
+          <button onClick={toggleLike} className="text-red-500">
+            {isLiked ? <FaHeart /> : <FaRegHeart />} {/* Conditional rendering based on isLiked */}
+          </button>
+        </div>
         {isExpanded && (
           <>
             <p className="text-gray-600 mt-2">{recipe.description}</p>
