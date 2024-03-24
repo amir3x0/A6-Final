@@ -22,6 +22,15 @@ export const registerNewUser = async (name, email, username, password) => {
   }
 };
 
+export const shareRecipe = async (recipe) => {
+  try {
+    await axios.post(`${API_URL}/recipes/share`, recipe);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 export const authenticateUser = async (username, password) => {
   try {
     const response = await axios.post(`${API_URL}/users/login`, {
@@ -67,8 +76,8 @@ export const fetchRecipeById = async (recipeId) => {
     const response = await axios.get(`${API_URL}/recipes/findone/${recipeId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching recipe by ID:', error);
-    throw new Error('Failed to fetch recipe');
+    console.error("Error fetching recipe by ID:", error);
+    throw new Error("Failed to fetch recipe");
   }
 };
 
