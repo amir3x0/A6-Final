@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { addFavoriteRecipe , removeFavoriteRecipe } from "../services/BackendService";
+import { useUser } from "../context/UserContext";
 
 // Enum for recipe categories
 const CategoryLabels = {
@@ -18,6 +21,35 @@ const RecipeCard = ({
   showAddIngredientsButton, // New prop to control the display of the "Add Ingredients" button
   onAddIngredients, // New prop to handle the "Add Ingredients" button click
 }) => {
+  const { user, updateUser } = useUser();
+  const isLiked = user?.favoriteRecipes?.includes(recipe._id) || false; 
+  const [liked, setLiked] = useState(isLiked);
+
+  const handleLike = async () => {
+    // If the recipe is already liked, unlike it
+    if (liked) {
+      const success = await removeFavoriteRecipe(recipe._id, user._id);
+      if (success) {
+        const updatedFavorites = user.favoriteRecipes.filter(id => id !== recipe._id);
+        updateUser({ favoriteRecipes: updatedFavorites });
+        setLiked(false);
+      } else {
+        console.error("Failed to remove from favorites");
+      }
+    } else {
+      const success = await addFavoriteRecipe(recipe._id, user._id);
+      if (success) {
+        updateUser({ favoriteRecipes: [...user.favoriteRecipes, recipe._id] });
+        setLiked(true);
+      } else {
+        console.error("Failed to add to favorites");
+        // Ensure the UI reflects the failed operation appropriately
+        setLiked(false);
+      }
+    }
+  };
+  
+
   // Function to handle select button click without propagating to card click
   const handleSelectClick = (e) => {
     e.stopPropagation(); // Prevent onClick for the card from being called
@@ -27,8 +59,6 @@ const RecipeCard = ({
   const handleAddIngredientsClick = () => {
     onAddIngredients(recipe.ingredients);
   };
-
-  
 
   return (
     <div
@@ -43,7 +73,19 @@ const RecipeCard = ({
         className="w-full h-48 object-cover"
       />
       <div className={`p-4 ${isExpanded ? "px-8 py-6" : "px-4 py-4"}`}>
-        <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
+          {user && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLike();
+              }}
+            >
+              {liked ? <FaHeart color="red" /> : <FaRegHeart color="grey" />}
+            </button>
+          )}
+        </div>
         {isExpanded && (
           <>
             <p className="text-gray-600 mt-2">{recipe.description}</p>

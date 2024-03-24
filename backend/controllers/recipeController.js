@@ -9,21 +9,28 @@ const getRecipes = async (req, res) => {
 
 const getRecipe = async (req, res) => {
   const { id } = req.params;
+  // Check if the id is null or any other falsy value you wish to account for
+  if (!id) {
+    // Return an empty object or any default response you see fit
+    return res.status(200).json({});
+  }
+  
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ error: "No such recipe" });
     }
     const recipe = await Recipe.findById(id);
     if (!recipe) {
-      return res.status(404).json({ error: "No such recipe" });
+      // Instead of returning an error, return an empty response or default value
+      return res.status(200).json({});
     }
-    // console.log(JSON.stringify(recipe, null, 2));
     res.status(200).json(recipe);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Server error fetching recipe" });
   }
 };
+
 
 // Share recipe
 const shareRecipe = async (req, res) => {

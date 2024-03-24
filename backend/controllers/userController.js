@@ -18,6 +18,7 @@ const getUser = async (req, res) => {
 
     // Preparing user data to send back, excluding the password for security
     const userResponse = {
+      _id: user._id,
       name: user.name,
       email: user.email,
       username: user.username,
@@ -47,7 +48,47 @@ const createUser = async (req, res) => {
   }
 };
 
+const addFavorite = async (req, res) => {
+  const { recipeId, userId } = req.body;
+  console.log(`Adding recipe ${recipeId} to favorites for user ${userId}`);
+  try {
+    // Assuming 'User' is your user model
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    // Add the recipeId to the favoriteRecipes array if it's not already included
+    if (!user.favoriteRecipes.includes(recipeId)) {
+      user.favoriteRecipes.push(recipeId);
+      await user.save();
+    }
+    res.status(200).send('Recipe added to favorites successfully');
+  } catch (error) {
+    console.error('Error adding favorite recipe:', error);
+    res.status(500).send('Internal server error');
+  }
+};
+
+const removeFavorite = async (req, res) => {
+  const { recipeId, userId } = req.query;
+  console.log(`Removing recipe ${recipeId} from favorites for user ${userId}`);
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    user.favoriteRecipes = user.favoriteRecipes.filter((id) => id !== recipeId);
+    await user.save();
+    res.status(200).send('Recipe removed from favorites successfully');
+  } catch (error) {
+    console.error('Error removing favorite recipe:', error);
+    res.status(500).send('Internal server error');
+  }
+}
+
 module.exports = {
   createUser,
   getUser,
+  addFavorite,
+  removeFavorite,
 };
