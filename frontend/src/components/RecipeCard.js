@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
-
+import { addFavoriteRecipe } from "../services/BackendService";
+import { useUser } from "../context/UserContext";
 
 // Enum for recipe categories
 const CategoryLabels = {
@@ -20,7 +21,22 @@ const RecipeCard = ({
   showAddIngredientsButton, // New prop to control the display of the "Add Ingredients" button
   onAddIngredients, // New prop to handle the "Add Ingredients" button click
 }) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const { user } = useUser(); // Use the UserContext
+
+  const handleLike = async () => {
+    setLiked(!liked);
+    if (!liked) {
+      // Assuming 'addFavoriteRecipe' is accessible here, either via import or defined in this file
+      const success = await addFavoriteRecipe(recipe._id, user._id); // Pass both recipeId and userId
+      if (!success) {
+        // Handle failure (optional)
+        console.error("Failed to add to favorites");
+        setLiked(false); // Optionally revert the like state if the backend call fails
+      }
+    }
+    // Handle unlike if needed
+  };
 
   // Function to handle select button click without propagating to card click
   const handleSelectClick = (e) => {
@@ -30,12 +46,6 @@ const RecipeCard = ({
 
   const handleAddIngredientsClick = () => {
     onAddIngredients(recipe.ingredients);
-  };
-
-
-  const toggleLike = (e) => {
-    e.stopPropagation(); // Prevent card click
-    setIsLiked(!isLiked);
   };
 
   return (
@@ -53,8 +63,13 @@ const RecipeCard = ({
       <div className={`p-4 ${isExpanded ? "px-8 py-6" : "px-4 py-4"}`}>
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
-          <button onClick={toggleLike} className="text-red-500">
-            {isLiked ? <FaHeart /> : <FaRegHeart />} {/* Conditional rendering based on isLiked */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLike();
+            }}
+          >
+            <FaRegHeart color={liked ? "red" : "grey"} />
           </button>
         </div>
         {isExpanded && (

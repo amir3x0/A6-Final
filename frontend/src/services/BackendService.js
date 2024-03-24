@@ -1,4 +1,5 @@
 // In services/BackendService.js or wherever you've defined this function
+import {useUser} from "../context/UserContext";
 import axios from "axios";
 
 const API_URL = "http://localhost:4000";
@@ -89,5 +90,15 @@ export const  fetchMealPlansbyId = async (mealId) => {
   } catch (error) {
     console.error("Axios error fetching meal plans:", error.response ? error.response.data : error.message);
     throw new Error("Failed to fetch the meal plans.");
+  }
+};
+
+export const addFavoriteRecipe = async (recipeId, userId) => {
+  try {
+    await axios.post(`${API_URL}/users/favorite`, { recipeId, userId });
+    return true;
+  } catch (error) {
+    console.error("Error adding favorite recipe:", error);
+    return false;
   }
 };
