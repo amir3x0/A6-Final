@@ -17,7 +17,7 @@ async function fetchAvatarPics() {
 }
 
 export default function MyYummy() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [loadingStatus, setLoadingStatus] = useState("Loading");
   const [error, setError] = useState("");
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);

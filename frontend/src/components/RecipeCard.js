@@ -21,18 +21,22 @@ const RecipeCard = ({
   showAddIngredientsButton, // New prop to control the display of the "Add Ingredients" button
   onAddIngredients, // New prop to handle the "Add Ingredients" button click
 }) => {
-  const [liked, setLiked] = useState(false);
-  const { user } = useUser(); // Use the UserContext
+  const { user, updateUser } = useUser();
+  const isLiked = user?.favoriteRecipes?.includes(recipe._id) || false; 
+  const [liked, setLiked] = useState(isLiked);
 
   const handleLike = async () => {
     setLiked(!liked);
     if (!liked) {
       // Assuming 'addFavoriteRecipe' is accessible here, either via import or defined in this file
       const success = await addFavoriteRecipe(recipe._id, user._id); // Pass both recipeId and userId
+
       if (!success) {
         // Handle failure (optional)
         console.error("Failed to add to favorites");
         setLiked(false); // Optionally revert the like state if the backend call fails
+      } else {
+        updateUser({ favoriteRecipes: [...user.favoriteRecipes, recipe._id] }); // Update the user context with the new favorite recipe
       }
     }
     // Handle unlike if needed
@@ -63,14 +67,16 @@ const RecipeCard = ({
       <div className={`p-4 ${isExpanded ? "px-8 py-6" : "px-4 py-4"}`}>
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold text-gray-800">{recipe.title}</p>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLike();
-            }}
-          >
-            <FaRegHeart color={liked ? "red" : "grey"} />
-          </button>
+          {user && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLike();
+              }}
+            >
+              {liked ? <FaHeart color="red" /> : <FaRegHeart color="grey" />}
+            </button>
+          )}
         </div>
         {isExpanded && (
           <>
