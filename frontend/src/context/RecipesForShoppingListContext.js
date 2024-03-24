@@ -28,6 +28,24 @@ export const RecipesForShoppingListProvider = ({ children }) => {
     }
   };
 
+  const subRecipeForShoppingList = (recipeId) => {
+    const updatedRecipes = recipesForShoppingList.map(recipe => {
+      if (recipe._id === recipeId) {
+        // If the quantity is already 1, remove the recipe instead of decreasing its quantity
+        if (recipe.quantity === 1) {
+          removeRecipeFromShoppingList(recipeId);
+        } else {
+          // Decrease the quantity by 1
+          return { ...recipe, quantity: recipe.quantity - 1 };
+        }
+      }
+      return recipe;
+    });
+
+    // Update the state with the modified recipes
+    setRecipesForShoppingList(updatedRecipes);
+  };
+
   const removeRecipeFromShoppingList = (recipeId) => {
     setRecipesForShoppingList(prevRecipes =>
       prevRecipes.filter(recipe => recipe._id !== recipeId)
@@ -39,7 +57,7 @@ export const RecipesForShoppingListProvider = ({ children }) => {
   };
 
   return (
-    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, removeRecipeFromShoppingList, clearRecipesForShoppingList }}>
+    <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, subRecipeForShoppingList, removeRecipeFromShoppingList, clearRecipesForShoppingList }}>
       {children}
     </RecipesForShoppingListContext.Provider>
   );

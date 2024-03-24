@@ -5,36 +5,33 @@ import { useRecipesForShoppingList } from "../context/RecipesForShoppingListCont
 import ShopBg from "../pages/shopping/shopping_img/Shopping-list-paper.jpg";
 
 const ShoppingSection = () => {
-  const { recipesForShoppingList, addRecipeForShoppingList, removeRecipeFromShoppingList } = useRecipesForShoppingList();
+  const { recipesForShoppingList, addRecipeForShoppingList, subRecipeForShoppingList, removeRecipeFromShoppingList } = useRecipesForShoppingList();
   const navigate = useNavigate();
-  const { shoppingList: initialShoppingList, setShoppingList } = useShoppingList();
-  const [shoppingList, setShoppingListState] = useState(initialShoppingList);
-  const [searchTerm, setSearchTerm] = useState('');
-  // Update shopping list when recipesForShoppingList changes
+  const { shoppingList: initialShoppingList } = useShoppingList();
+  const [ingredientName, setIngredientName] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unit, setUnit] = useState('');
+  const [manuallyAddedIngredients, setManuallyAddedIngredients] = useState([]);
+  const [recipeIngredients, setRecipeIngredients] = useState([]);
+
   useEffect(() => {
-    // Create a new shopping list based on the ingredients of the recipesForShoppingList
-    const newShoppingList = recipesForShoppingList.reduce((acc, recipe) => {
-      // Iterate over each ingredient in the recipe
-      recipe.ingredients.forEach(ingredient => {
-        // Check if the ingredient already exists in the shopping list
-        const existingIndex = acc.findIndex(item => item.name === ingredient.name);
-        if (existingIndex !== -1) {
-          // If the ingredient exists, update its quantity
-          acc[existingIndex].quantity += ingredient.quantity * recipe.quantity;
-        } else {
-          // If the ingredient does not exist, add it to the shopping list
-          acc.push({
-            name: ingredient.name,
-            quantity: ingredient.quantity * recipe.quantity,
-            unit: ingredient.unit
-          });
-        }
-      });
-      return acc;
-    }, []);
-    // Set the updated shopping list
-    setShoppingListState(newShoppingList);
+    // Set recipe ingredients from selected recipes
+    const recipeIngredients = recipesForShoppingList.flatMap(recipe => recipe.ingredients.map(ingredient => ({
+      name: ingredient.name,
+      quantity: parseQuantity(ingredient.quantity) * (recipe.quantity || 0), // Multiply by recipe quantity
+      unit: ingredient.unit
+    })));
+    setRecipeIngredients(recipeIngredients);
   }, [recipesForShoppingList]);
+
+  const parseQuantity = (quantity) => {
+    if (!quantity) return 0;
+    if (quantity.includes('/')) {
+      const [numerator, denominator] = quantity.split('/');
+      return parseFloat(numerator) / parseFloat(denominator);
+    }
+    return parseFloat(quantity);
+  };
 
   const handleAddRecipe = () => {
     navigate("/recipes", { state: { fromShoppingList: true } });
@@ -44,25 +41,37 @@ const ShoppingSection = () => {
     addRecipeForShoppingList(recipeId);
   };
 
-  const handleSubtractQuantity = (recipeId) => {
-    const recipeIndex = recipesForShoppingList.findIndex(recipe => recipe._id === recipeId);
-    if (recipeIndex !== -1) {
-      const updatedRecipes = [...recipesForShoppingList];
-      if (updatedRecipes[recipeIndex].quantity === 1) {
-        removeRecipeFromShoppingList(recipeId);
-      } else {
-        updatedRecipes[recipeIndex].quantity -= 1;
-        // Update the recipesForShoppingList context
-        setShoppingList(updatedRecipes);
-      }
-    }
+  const handleSubQuantity = (recipeId) => {
+    subRecipeForShoppingList(recipeId);
   };
-
 
   const handleRemoveRecipe = (recipeId) => {
     removeRecipeFromShoppingList(recipeId);
   };
 
+  const handleAddIngredient = () => {
+    if (ingredientName.trim() === '' || quantity.trim() === '' || unit.trim() === '') {
+      // Do not add ingredient if any field is empty
+      return;
+    }
+    const newIngredient = {
+      name: ingredientName.trim(),
+      quantity: parseQuantity(quantity),
+      unit: unit.trim()
+    };
+  
+    // Add manually added ingredient to the state
+    setManuallyAddedIngredients(prevIngredients => [...prevIngredients, newIngredient]);
+  
+    // Clear input fields after adding ingredient
+    setIngredientName('');
+    setQuantity('');
+    setUnit('');
+  };
+  
+  // Combine manually added ingredients with recipe ingredients
+  const shoppingList = [...initialShoppingList, ...manuallyAddedIngredients, ...recipeIngredients];
+  
   return (
     <div className="container mx-auto p-4 max-w-8xl relative grid grid-cols-2 gap-4" style={{ backgroundImage: `url(${ShopBg})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
       <div className="col-span-1 bg-opacity-12 p-4 rounded-lg flex flex-col justify-center items-center">
@@ -80,11 +89,37 @@ const ShoppingSection = () => {
           </button>
           <input
             type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search Ingredient..."
+            value={ingredientName}
+            onChange={(e) => setIngredientName(e.target.value)}
+            placeholder="Ingredient Name..."
             className="border border-gray-300 rounded-lg p-2 mb-4"
           />
+          <div className="flex items-center mb-4">
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="Quantity"
+              className="border border-gray-300 rounded-l-lg p-2 mr-1"
+            />
+            <select
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              className="border border-gray-300 rounded-r-lg p-2"
+            >
+              <option value="">Select Unit</option>
+              <option value="tsp">Teaspoon</option>
+              <option value="cup">Cup</option>
+              <option value="whole">Whole</option>
+              <option value="g">Gram</option>
+            </select>
+          </div>
+          <button
+            onClick={handleAddIngredient}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
+          >
+            Add Ingredient
+          </button>
       </div>
       <div className="col-span-1 bg-opacity-80  shadow-lg bg-gray-100 p-4 rounded-lg ">
         <h2 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
@@ -118,7 +153,7 @@ const ShoppingSection = () => {
                     <button onClick={() => handleAddQuantity(recipe._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
                       +
                     </button>
-                    <button onClick={() => handleSubtractQuantity(recipe._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
+                    <button onClick={() => handleSubQuantity(recipe._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
                       -
                     </button>
                     <button onClick={() => handleRemoveRecipe(recipe._id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
