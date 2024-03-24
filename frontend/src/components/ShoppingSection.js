@@ -15,13 +15,15 @@ const ShoppingSection = () => {
   const [recipeIngredients, setRecipeIngredients] = useState([]);
 
   useEffect(() => {
-    // Set recipe ingredients from selected recipes
-    const recipeIngredients = recipesForShoppingList.flatMap(recipe => recipe.ingredients.map(ingredient => ({
-      name: ingredient.name,
-      quantity: parseQuantity(ingredient.quantity) * (recipe.quantity || 0), // Multiply by recipe quantity
-      unit: ingredient.unit
-    })));
-    setRecipeIngredients(recipeIngredients);
+    // Calculate recipe ingredients based on selected recipes
+    const calculatedRecipeIngredients = recipesForShoppingList.flatMap(recipe =>
+      recipe.ingredients.map(ingredient => ({
+        name: ingredient.name,
+        quantity: parseQuantity(ingredient.quantity) * (recipe.quantity || 0), // Multiply by recipe quantity
+        unit: ingredient.unit
+      }))
+    );
+    setRecipeIngredients(calculatedRecipeIngredients);
   }, [recipesForShoppingList]);
 
   const parseQuantity = (quantity) => {
@@ -59,18 +61,18 @@ const ShoppingSection = () => {
       quantity: parseQuantity(quantity),
       unit: unit.trim()
     };
-  
+
     // Add manually added ingredient to the state
     setManuallyAddedIngredients(prevIngredients => [...prevIngredients, newIngredient]);
-  
+
     // Clear input fields after adding ingredient
     setIngredientName('');
     setQuantity('');
     setUnit('');
   };
-  
-  // Combine manually added ingredients with recipe ingredients
-  const shoppingList = [...initialShoppingList, ...manuallyAddedIngredients, ...recipeIngredients];
+
+  // Combine manually added ingredients with recipe ingredients and initial shopping list
+  const combinedShoppingList = [...initialShoppingList, ...manuallyAddedIngredients, ...recipeIngredients];
   
   return (
     <div className="container mx-auto p-4 max-w-8xl relative grid grid-cols-2 gap-4" style={{ backgroundImage: `url(${ShopBg})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
@@ -80,12 +82,6 @@ const ShoppingSection = () => {
             onClick={handleAddRecipe}
           >
             Add Ingredients According To Recipe
-          </button>
-          <button
-            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out mb-4"
-            onClick={handleAddRecipe}
-          >
-            Add Ingredients According To Meal Plan
           </button>
           <input
             type="text"
@@ -187,7 +183,7 @@ const ShoppingSection = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
-              {shoppingList.map(({ name, quantity, unit }, index) => (
+              {combinedShoppingList.map(({ name, quantity, unit }, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="px-4 py-2 text-gray-700">{name}</td>
                   <td className="px-4 py-2 text-gray-700">{quantity}</td>
