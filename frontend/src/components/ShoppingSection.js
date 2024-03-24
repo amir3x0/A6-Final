@@ -9,7 +9,7 @@ const ShoppingSection = () => {
   const navigate = useNavigate();
   const { shoppingList: initialShoppingList, setShoppingList } = useShoppingList();
   const [shoppingList, setShoppingListState] = useState(initialShoppingList);
-
+  const [searchTerm, setSearchTerm] = useState('');
   // Update shopping list when recipesForShoppingList changes
   useEffect(() => {
     // Create a new shopping list based on the ingredients of the recipesForShoppingList
@@ -65,18 +65,29 @@ const ShoppingSection = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-8xl relative grid grid-cols-2 gap-4" style={{ backgroundImage: `url(${ShopBg})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
-      <div className="col-span-1 bg-opacity-80 shadow-lg bg-gray-100 p-4 rounded-lg flex flex-col justify-center items-center" style={{ backdropFilter: "blur(10px)" }}>
-        <div className="bg-white bg-opacity-80 h-full flex flex-col justify-center items-center">
+      <div className="col-span-1 bg-opacity-12 p-4 rounded-lg flex flex-col justify-center items-center">
           <button
-            className="shadow-lg hover:bg-light-700 text-black font-bold py-2 px-4 rounded mb-4"
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out mb-4"
             onClick={handleAddRecipe}
           >
-            Add Ingredients According to Recipe
+            Add Ingredients According To Recipe
           </button>
-        </div>
+          <button
+            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out mb-4"
+            onClick={handleAddRecipe}
+          >
+            Add Ingredients According To Meal Plan
+          </button>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search Ingredient..."
+            className="border border-gray-300 rounded-lg p-2 mb-4"
+          />
       </div>
-      <div className="col-span-1 bg-opacity-80  shadow-lg bg-gray-100 p-4 rounded-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center text-black-800">
+      <div className="col-span-1 bg-opacity-80  shadow-lg bg-gray-100 p-4 rounded-lg ">
+        <h2 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
           Selected recipes for shopping list
         </h2>
         <div className="overflow-auto max-h-96">
@@ -122,7 +133,7 @@ const ShoppingSection = () => {
       </div>
       <div className="col-span-1"></div>
       <div className="col-span-1 shadow-lg bg-gray-100 p-4 rounded-lg bg-opacity-80">
-        <h2 className="text-2xl font-bold mb-6 text-center text-black-800">
+        <h2 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
           Shopping List
         </h2>
         <div className="overflow-auto max-h-96">
