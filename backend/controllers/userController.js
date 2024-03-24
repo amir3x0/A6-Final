@@ -70,15 +70,13 @@ const addFavorite = async (req, res) => {
 };
 
 const removeFavorite = async (req, res) => {
-  const { recipeId, userId } = req.body;
+  const { recipeId, userId } = req.query;
   console.log(`Removing recipe ${recipeId} from favorites for user ${userId}`);
   try {
-    // Assuming 'User' is your user model
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).send('User not found');
     }
-    // Remove the recipeId from the favoriteRecipes array
     user.favoriteRecipes = user.favoriteRecipes.filter((id) => id !== recipeId);
     await user.save();
     res.status(200).send('Recipe removed from favorites successfully');

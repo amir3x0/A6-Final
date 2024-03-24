@@ -1,5 +1,4 @@
 // In services/BackendService.js or wherever you've defined this function
-import {useUser} from "../context/UserContext";
 import axios from "axios";
 
 const API_URL = "http://localhost:4000";
@@ -105,7 +104,7 @@ export const addFavoriteRecipe = async (recipeId, userId) => {
 
 export const removeFavoriteRecipe = async (recipeId, userId) => {
   try {
-    await axios.delete(`${API_URL}/users/deletefavorite`, {recipeId, userId });
+    await axios.delete(`${API_URL}/users/deletefavorite?recipeId=${encodeURIComponent(recipeId)}&userId=${encodeURIComponent(userId)}`);
     return true;
   } catch (error) {
     console.error("Error removing favorite recipe:", error);
