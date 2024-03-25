@@ -7,6 +7,7 @@ const recipeRoutes = require('./routes/recipes');
 const userRoutes = require("./routes/users");
 const mealPlanRoutes = require("./routes/meals");
 const ingredientRoutes = require("./routes/ingredientRoutes");
+const imageKit = require("./routes/imagekit");
 
 // Express app
 const app = express();
@@ -24,6 +25,7 @@ app.use("/users", userRoutes);
 app.use('/recipes', recipeRoutes);
 app.use('/ingredient', ingredientRoutes);
 app.use('/meals', mealPlanRoutes);
+app.use('/imagekit', imageKit);
 
 // Connect to MongoDB & listen for requests
 mongoose.connect(process.env.MONGO_URI)

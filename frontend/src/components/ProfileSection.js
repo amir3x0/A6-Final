@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { fetchRecipeById, fetchMealPlansbyId } from "../services/BackendService";
+import {
+  fetchRecipeById,
+  fetchMealPlansbyId,
+  getAuthenticationParametersImageKit,
+  performImageUpload,
+} from "../services/BackendService";
 import RecipeCard from "./RecipeCard";
 import MealCard from "./MealCard";
 import { IKContext, IKImage, IKUpload } from "imagekitio-react";
-import Settings from "../pages/profile/settings"; // Adjust the import path as necessary
+import Settings from "../pages/profile/settings";
 
 async function fetchAvatarPics() {
   return [
@@ -29,6 +34,8 @@ export default function MyYummy() {
   const [showOptions, setShowOptions] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [expandedMealId, setExpandedMealId] = useState(null);
+  //imagkekit
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const initFetch = async () => {
@@ -110,15 +117,16 @@ export default function MyYummy() {
         <div
           key={meal._id}
           className={`meal-plan-container transition duration-300 transform hover:-translate-y-1 ${
-            expandedMealId === meal._id ? 'sm:col-span-2 lg:col-span-3 xl:col-span-4' : 'col-span-1'
-          }`} 
+            expandedMealId === meal._id
+              ? "sm:col-span-2 lg:col-span-3 xl:col-span-4"
+              : "col-span-1"
+          }`}
         >
           <MealCard meal={meal} onExpandChange={handleExpandChange} />
         </div>
       ))}
     </div>
   );
-  
 
   if (loadingStatus === "Loading") return <div>Loading...</div>;
   if (loadingStatus === "Error") return <div>Error: {error}</div>;
@@ -128,23 +136,37 @@ export default function MyYummy() {
   };
   const toggleOptions = () => setShowOptions(!showOptions);
 
-  let temp = "start";
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+};
 
-  const onSuccess = (response) => {
-    console.log(response);
-  };
+const uploadImageToImageKit = async () => {
+  if (!file) {
+    alert("Please select a file first!");
+    return;
+  }
 
-  const onError = (error) => {
-    console.log(error);
-  };
+  try {
+    // Get the authentication parameters from your server
+    const authParams = await getAuthenticationParametersImageKit();
+    const formData = new FormData();
+    formData.append("file", file); // The file to upload
+
+    // Call the renamed service function to perform the upload
+    const uploadResponse = await performImageUpload(formData);
+    if (uploadResponse.success) { // Ensure to check the correct property for success
+      alert("Upload successful!");
+    } else {
+      throw new Error("Upload failed due to server error");
+    }
+  } catch (error) {
+    alert(error.message || "Upload failed!");
+  }
+};
+
+
 
   return (
-    <IKContext
-      publicKey="public_zi8VqYVIZTCyZWjVNDLt1qeq2ag="
-      urlEndpoint="https://ik.imagekit.io/k0hnty7yv/"
-      // transformationPosition="path"
-      // authenticationEndpoint="http://www.yourserver.com/auth"
-    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap -mb-4">
           {/* Profile Section */}
@@ -156,18 +178,6 @@ export default function MyYummy() {
                 className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 cursor-pointer"
                 onClick={toggleOptions}
               />
-              {showOptions && (
-                <div className="options-overlay absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center bg-black bg-opacity-50">
-                  {avatarPics.map((avatarPath, index) => (
-                    <IKImage
-                      key={index}
-                      path={avatarPath}
-                      transformation={[{ height: "100", width: "100" }]}
-                      onClick={() => console.log(`Avatar ${index} selected`)}
-                    />
-                  ))}
-                </div>
-              )}
               {/* User Details */}
               <h2 className="text-2xl md:text-3xl font-extrabold text-center mt-4 text-blue-600">
                 {user.name}
@@ -185,19 +195,6 @@ export default function MyYummy() {
                 Settings
               </button>
             </div>
-
-            <div className="upload-section">
-              <h3 className="text-2xl font-bold mt-8">Upload Image</h3>
-              <IKUpload
-                fileName="profile_image"
-                tags={["profile_image"]}
-                useUniqueFileName={true}
-                onError={(error) => (temp = "error")}
-                onSuccess={(response) => (temp = "cool")}
-              />
-              folder="/profile_images"
-              {temp}
-            </div>
           </div>
 
           {/* Recipes and Meal Plans */}
@@ -214,18 +211,20 @@ export default function MyYummy() {
                 <h2 className="text-4xl font-bold mb-8">Uploaded Recipes</h2>
                 {renderRecipeCards(uploadedRecipes)}
               </div>
-            </div>
 
-            {/* Meal Plans Section */}
-            <div className="mb-8">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Meal Plans
-              </h2>
-              {renderMealPlans(MealPlans)}
+              {/* Meal Plans Section */}
+              <div className="mb-8">
+                <h2 className="text-4xl font-bold mb-8">Meal Plans</h2>
+                {renderMealPlans(MealPlans)}
+              </div>
             </div>
           </div>
         </div>
+
+        <div>
+          <input type="file" onChange={handleFileChange} />
+          <button onClick={uploadImageToImageKit}>Upload to ImageKit</button>
+        </div>
       </div>
-    </IKContext>
   );
 }

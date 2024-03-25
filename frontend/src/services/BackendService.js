@@ -1,6 +1,7 @@
 // In services/BackendService.js or wherever you've defined this function
 import axios from "axios";
 
+
 const API_URL = "http://localhost:4000";
 
 export const fetchMessageFromBackend = async () => {
@@ -109,5 +110,34 @@ export const removeFavoriteRecipe = async (recipeId, userId) => {
   } catch (error) {
     console.error("Error removing favorite recipe:", error);
     return false;
+  }
+};
+
+export const getAuthenticationParametersImageKit = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/imagekit/auth`);
+    return response.data; // Contains signature, expire, and token
+  } catch (error) {
+    console.error("Error fetching authentication parameters:", error);
+    throw new Error("Failed to fetch authentication parameters");
+  }
+};
+
+export const performImageUpload = async (formData, authParams) => {
+  try {
+    // Append authentication parameters to formData
+    Object.keys(authParams).forEach(key => {
+      formData.append(key, authParams[key]);
+    });
+
+    const response = await axios.post(`${API_URL}/imagekit/postimage`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    throw new Error("Failed to upload image");
   }
 };
