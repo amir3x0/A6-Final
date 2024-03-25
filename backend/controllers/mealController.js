@@ -37,12 +37,19 @@ const getMeal = async (req, res) => {
 
 const  createMeal = async (req, res) => {
   try {
-    // Assuming password hashing is done within your User model's pre-save middleware
-    const Meal = await Meal.create(req.body);
-    console.log(`User created: ${req.body.username}`);
-    res.status(200).json(user);
+    console.log("Creating meal");
+    console.log(req.body);
+    const meal = new Meal(req.body);
+    await meal.save();
+    const userId = req.body.userId;
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { meals: meal._id } }, // Adds the meal ID to the meals array of the user
+      { new: true, runValidators: true }
+    );
+    res.status(200).json({ message: "meal uploaded successfully!", meal });
   } catch (error) {
-    console.log("Failed to create user:", error);
+    console.log("Failed to create meal:", error);
     res.status(500).json({ error: error.message });
   }
 };
