@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/loadmeal/:id", getMeal);
  
-router.post("/", createMeal);
+router.post("/savemeal", createMeal);
 
 module.exports = router;
 

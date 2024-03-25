@@ -4,50 +4,37 @@ import PlanBg from "../pages/plan/plan_img/planBg.jpg";
 import { useNavigate } from "react-router-dom";
 import { useSelectedRecipes } from "../context/SelectedRecipesContext";
 import { useShoppingList } from "../context/ShoppingListContext";
+import { useUser } from "../context/UserContext";
+import { saveMealPlan } from "../services/BackendService";
+
 
 const PlanSection = () => {
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
   const { selectedRecipes } = useSelectedRecipes();
   const navigate = useNavigate();
-  const [shoppingList, setShoppingListState] = useState([]);
-  const { setShoppingList } = useShoppingList();
+  const { user, updateUser } = useUser();
+  const [mealPlanName, setMealPlanName] = useState('');
+  // const [shoppingList, setShoppingListState] = useState([]);
+  // const { setShoppingList } = useShoppingList();
 
   const handleAddRecipe = (category) => {
     navigate(`/Recipes`, { state: { category } });
   };
 
-  // Function to handle adding ingredients to the shopping list
-  const handleAddIngredients = (ingredients) => {
-    setShoppingListState((currentList) => {
-      const ingredientMap = currentList.reduce((acc, ingredient) => {
-        const key = `${ingredient.name}-${ingredient.unit}`;
-        if (!acc[key]) {
-          acc[key] = { ...ingredient };
-        } else {
-          acc[key].quantity += ingredient.quantity;
-        }
-        return acc;
-      }, {});
+  const handleSavePlanMeal = async () => {
+    const mealPlanData = {
+      name: mealPlanName,
+      recipes: selectedRecipes.map(recipe => recipe._id), // Simplified for brevity
+      userId: user._id,
+    };
+    const response = await saveMealPlan(mealPlanData);
+    if (response) {
+      updateUser({ MealPlans: [...user.MealPlans, response.meal_id] });
+      setMealPlanName('');
+    }
 
-      ingredients.forEach((ingredientToAdd) => {
-        const key = `${ingredientToAdd.name}-${ingredientToAdd.unit}`;
-        if (ingredientMap[key]) {
-          ingredientMap[key].quantity += parseFloat(ingredientToAdd.quantity);
-        } else {
-          ingredientMap[key] = {
-            ...ingredientToAdd,
-            quantity: parseFloat(ingredientToAdd.quantity),
-          };
-        }
-      });
-
-      return Object.values(ingredientMap);
-    });
-  };
-
-  const makeList = () => {
-    setShoppingList(shoppingList); // Update the global context with the local state
-    navigate("/Shopping");
+    // Call your backend service here
+    // Example: backendService.saveMealPlan(mealPlanData);
   };
 
   return (
@@ -92,8 +79,8 @@ const PlanSection = () => {
                           )
                         }
                         showSelectButton={false}
-                        showAddIngredientsButton={true}
-                        onAddIngredients={handleAddIngredients}
+                        // showAddIngredientsButton={true}
+                        // onAddIngredients={handleAddIngredients}
                       />
                     ))}
                 </div>
@@ -104,7 +91,7 @@ const PlanSection = () => {
 
         {/* Shopping List Section */}
         <div className="w-full lg:w-1/4 lg:pl-4">
-          <h2 className="text-3xl font-bold text-green-800 uppercase mb-4">
+          {/* <h2 className="text-3xl font-bold text-green-800 uppercase mb-4">
             Shopping List
           </h2>
           <div className="overflow-x-auto lg:overflow-visible shadow-md rounded-lg">
@@ -138,22 +125,23 @@ const PlanSection = () => {
             className="mt-4 w-full bg-green-600 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 shadow-lg"
           >
             Make List
-          </button>
+          </button> */}
           <div className="mt-4">
             <input
               type="text"
               className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter meal plan name"
-              //value={mealPlanName}
-             // onChange={(e) => setMealPlanName(e.target.value)}
+              value={mealPlanName}
+              onChange={(e) => setMealPlanName(e.target.value)}
             />
             <button
               className="mt-2 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 shadow-lg"
-              //onClick={handleSavePlanMeal}
+              onClick={handleSavePlanMeal}
             >
               Save Plan Meal
             </button>
           </div>
+          
         </div>
       </div>
     </div>
@@ -161,3 +149,39 @@ const PlanSection = () => {
 };
 
 export default PlanSection;
+
+
+
+  // // Function to handle adding ingredients to the shopping list
+  // const handleAddIngredients = (ingredients) => {
+  //   setShoppingListState((currentList) => {
+  //     const ingredientMap = currentList.reduce((acc, ingredient) => {
+  //       const key = `${ingredient.name}-${ingredient.unit}`;
+  //       if (!acc[key]) {
+  //         acc[key] = { ...ingredient };
+  //       } else {
+  //         acc[key].quantity += ingredient.quantity;
+  //       }
+  //       return acc;
+  //     }, {});
+
+  //     ingredients.forEach((ingredientToAdd) => {
+  //       const key = `${ingredientToAdd.name}-${ingredientToAdd.unit}`;
+  //       if (ingredientMap[key]) {
+  //         ingredientMap[key].quantity += parseFloat(ingredientToAdd.quantity);
+  //       } else {
+  //         ingredientMap[key] = {
+  //           ...ingredientToAdd,
+  //           quantity: parseFloat(ingredientToAdd.quantity),
+  //         };
+  //       }
+  //     });
+
+  //     return Object.values(ingredientMap);
+  //   });
+  // };
+
+  // const makeList = () => {
+  //   setShoppingList(shoppingList); // Update the global context with the local state
+  //   navigate("/Shopping");
+  // };

@@ -7,12 +7,10 @@ const mealSchema = new Schema({
         type: String,
         required: true,
     },
-    recipes: [
-        { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', default: [] }],
-    username: {
+    recipes:  [{ type: String, default: [] }],
+    userId: {
         type: String,
         required: true,
-        ref: 'User',
     },
 });
 
