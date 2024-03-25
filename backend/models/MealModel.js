@@ -8,7 +8,7 @@ const mealSchema = new Schema({
         required: true,
     },
     recipes:  [{ type: String, default: [] }],
-    username: {
+    userId: {
         type: String,
         required: true,
     },

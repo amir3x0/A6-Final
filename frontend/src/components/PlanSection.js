@@ -25,11 +25,11 @@ const PlanSection = () => {
     const mealPlanData = {
       name: mealPlanName,
       recipes: selectedRecipes.map(recipe => recipe._id), // Simplified for brevity
-      username: user.username,
+      userId: user._id,
     };
     const response = await saveMealPlan(mealPlanData);
-    if (response.success) {
-      updateUser({ MealPlans: [...user.MealPlans, response.data] });
+    if (response) {
+      updateUser({ MealPlans: [...user.MealPlans, response.meal_id] });
       setMealPlanName('');
     }
 

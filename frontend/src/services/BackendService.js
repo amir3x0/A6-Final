@@ -115,8 +115,8 @@ export const removeFavoriteRecipe = async (recipeId, userId) => {
 
 export const saveMealPlan = async (mealPlan) => {
   try {
-    await axios.post(`${API_URL}/meals/savemeal`, mealPlan);
-    return true;
+    const response = await axios.post(`${API_URL}/meals/savemeal`, mealPlan);
+    return response.data;
   } catch (error) {
     console.error("Error saving meal plan:", error);
     return false;
