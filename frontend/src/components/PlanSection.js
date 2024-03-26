@@ -3,7 +3,6 @@ import RecipeCard from "./RecipeCard";
 import PlanBg from "../pages/plan/plan_img/planBg.jpg";
 import { useNavigate } from "react-router-dom";
 import { useSelectedRecipes } from "../context/SelectedRecipesContext";
-import { useShoppingList } from "../context/ShoppingListContext";
 import { useUser } from "../context/UserContext";
 import { saveMealPlan } from "../services/BackendService";
 
@@ -14,9 +13,6 @@ const PlanSection = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useUser();
   const [mealPlanName, setMealPlanName] = useState('');
-  // const [shoppingList, setShoppingListState] = useState([]);
-  // const { setShoppingList } = useShoppingList();
-
   const handleAddRecipe = (category) => {
     navigate(`/Recipes`, { state: { category } });
   };
@@ -24,7 +20,7 @@ const PlanSection = () => {
   const handleSavePlanMeal = async () => {
     const mealPlanData = {
       name: mealPlanName,
-      recipes: selectedRecipes.map(recipe => recipe._id), // Simplified for brevity
+      recipes: selectedRecipes.map(recipe => recipe._id), 
       userId: user._id,
     };
     const response = await saveMealPlan(mealPlanData);
@@ -111,6 +107,9 @@ const PlanSection = () => {
 
 export default PlanSection;
 
+
+  // const [shoppingList, setShoppingListState] = useState([]);
+  // const { setShoppingList } = useShoppingList();
 
                         // showAddIngredientsButton={true}
                         // onAddIngredients={handleAddIngredients}
