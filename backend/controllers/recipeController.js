@@ -1,5 +1,6 @@
 const Recipe = require("../models/RecipesModel");
 const mongoose = require("mongoose");
+
 // get all recipes
 const getRecipes = async (req, res) => {
   const recipes = await Recipe.find({}).sort({ createdAt: -1 });
@@ -9,12 +10,9 @@ const getRecipes = async (req, res) => {
 
 const getRecipe = async (req, res) => {
   const { id } = req.params;
-  // Check if the id is null or any other falsy value you wish to account for
   if (!id) {
-    // Return an empty object or any default response you see fit
     return res.status(200).json({});
   }
-  
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ error: "No such recipe" });
@@ -30,7 +28,6 @@ const getRecipe = async (req, res) => {
     res.status(500).json({ error: "Server error fetching recipe" });
   }
 };
-
 
 // Share recipe
 const shareRecipe = async (req, res) => {
@@ -52,7 +49,6 @@ const deleteRecipe = async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    //Check if the id is valid
     return res.status(404).json({ error: "No such recipe" });
   }
 
@@ -71,7 +67,6 @@ const updateRecipe = async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    //Check if the id is valid
     return res.status(404).json({ error: "No such recipe" });
   }
 
@@ -83,7 +78,6 @@ const updateRecipe = async (req, res) => {
   );
 
   if (!recipe) {
-    // check if there is such object whit this id in the db
     return res.status(404).json({ error: "No such recipe" });
   }
 
