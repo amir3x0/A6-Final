@@ -7,6 +7,7 @@ const {
   addUploadedRecipe,
   bioUpdate,
   themeUpdate,
+  changeProflieImage,
 } = require("../controllers/userController");
 const verifyToken = require("../middlewares/authmiddleware");
 // const { addfavoriteRecipe } = require("../../frontend/src/services/BackendService");
@@ -27,5 +28,7 @@ router.post("/bio", bioUpdate);
 router.post("/theme", themeUpdate);
 
 router.post("/updateShare", addUploadedRecipe);
+
+router.post("/profileimage", changeProflieImage);
 
 module.exports = router;

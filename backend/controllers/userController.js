@@ -137,6 +137,23 @@ const addUploadedRecipe = async (req, res) => {
   }
 }
 
+const changeProflieImage = async (req, res) => {
+  const { userId, profileImageUrl } = req.body;
+  console.log(`Updating profileImageUrl for user ${userId}`);
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    user.profileImageUrl = profileImageUrl;
+    await user.save();
+    res.status(200).send("profileImageUrl updated successfully");
+  } catch (error) {
+    console.error("Error updating profileImageUrl:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
 module.exports = {
   createUser,
   getUser,
@@ -145,4 +162,5 @@ module.exports = {
   addUploadedRecipe,
   bioUpdate,
   themeUpdate,
+  changeProflieImage,
 };

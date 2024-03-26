@@ -156,3 +156,15 @@ export const updateUserTheme = async (userId, newTheme) => {
     throw error;
   }
 };
+
+export const updateUserProfileImage = async (userId, newProfileImage) => {
+  try {
+    const response = await axios.post(`${API_URL}/users/profileimage/`, {userId,
+      profileImageUrl: newProfileImage,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update user profile image:', error);
+    throw error;
+  }
+} 
