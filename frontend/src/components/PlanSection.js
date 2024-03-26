@@ -10,7 +10,7 @@ import { saveMealPlan } from "../services/BackendService";
 
 const PlanSection = () => {
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
-  const { selectedRecipes } = useSelectedRecipes();
+  const { selectedRecipes, clearSelectedRecipes } = useSelectedRecipes();
   const navigate = useNavigate();
   const { user, updateUser } = useUser();
   const [mealPlanName, setMealPlanName] = useState('');
@@ -32,9 +32,7 @@ const PlanSection = () => {
       updateUser({ MealPlans: [...user.MealPlans, response.meal_id] });
       setMealPlanName('');
     }
-
-    // Call your backend service here
-    // Example: backendService.saveMealPlan(mealPlanData);
+    clearSelectedRecipes();  
   };
 
   return (
@@ -79,8 +77,6 @@ const PlanSection = () => {
                           )
                         }
                         showSelectButton={false}
-                        // showAddIngredientsButton={true}
-                        // onAddIngredients={handleAddIngredients}
                       />
                     ))}
                 </div>
@@ -89,8 +85,36 @@ const PlanSection = () => {
           )}
         </div>
 
-        {/* Shopping List Section */}
+        {/* Save Meal Section */}
         <div className="w-full lg:w-1/4 lg:pl-4">
+          <div className="mt-4">
+            <input
+              type="text"
+              className="w-full px-3 py-2 border rounded-md"
+              placeholder="Enter meal plan name"
+              value={mealPlanName}
+              onChange={(e) => setMealPlanName(e.target.value)}
+            />
+            <button
+              className="mt-2 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 shadow-lg"
+              onClick={handleSavePlanMeal}
+            >
+              Save Plan Meal
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PlanSection;
+
+
+                        // showAddIngredientsButton={true}
+                        // onAddIngredients={handleAddIngredients}
+
           {/* <h2 className="text-3xl font-bold text-green-800 uppercase mb-4">
             Shopping List
           </h2>
@@ -126,30 +150,6 @@ const PlanSection = () => {
           >
             Make List
           </button> */}
-          <div className="mt-4">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border rounded-md"
-              placeholder="Enter meal plan name"
-              value={mealPlanName}
-              onChange={(e) => setMealPlanName(e.target.value)}
-            />
-            <button
-              className="mt-2 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-700 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50 shadow-lg"
-              onClick={handleSavePlanMeal}
-            >
-              Save Plan Meal
-            </button>
-          </div>
-          
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PlanSection;
-
 
 
   // // Function to handle adding ingredients to the shopping list
