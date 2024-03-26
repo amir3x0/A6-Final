@@ -21,7 +21,7 @@ function App() {
     <Router>
       <UserProvider>
         <ThemeProvider>
-          <SelectedRecipesProvider>
+          <SelectedRecipesProvider> 
             <RecipesForShoppingListProvider>  
               <ShoppingListProvider>
                 {" "}
