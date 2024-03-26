@@ -27,7 +27,7 @@ const getMeal = async (req, res) => {
       recipes: recipes.filter((recipe) => recipe !== null), // Filter out any null values in case some recipes were not found
     };
 
-    console.log(JSON.stringify(mealWithRecipes, null, 1));
+    // console.log(JSON.stringify(mealWithRecipes, null, 1));
     res.status(200).json(mealWithRecipes);
   } catch (error) {
     console.error(error);
@@ -37,8 +37,7 @@ const getMeal = async (req, res) => {
 
 const createMeal = async (req, res) => {
   try {
-    console.log("Creating meal");
-    console.log(req.body);
+    console.log("creating meal");
     const meal = new Meal(req.body);
     await meal.save();
     console.log(req.body.userId);
