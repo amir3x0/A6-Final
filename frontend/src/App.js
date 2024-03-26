@@ -14,34 +14,39 @@ import { ShoppingListProvider } from "./context/ShoppingListContext";
 import { SelectedRecipesProvider } from "./context/SelectedRecipesContext";
 import { UserProvider } from "./context/UserContext";
 import { RecipesForShoppingListProvider } from "./context/RecipesForShoppingListContext";
+import ThemeProvider from "./context/ThemeContext";
 
 function App() {
   return (
     <Router>
       <UserProvider>
-        <SelectedRecipesProvider>
-          <RecipesForShoppingListProvider>
-            <ShoppingListProvider>
-              <div>
-                <NavBar />
-                <div className="font-serif">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/A6/" element={<Home />} />
-                    <Route path="/Home" element={<Home />} />
-                    <Route path="/Recipes" element={<Recipes />} />
-                    <Route path="/Plan" element={<PlanMeal />} />
-                    <Route path="/Share" element={<Share />} />
-                    <Route path="/Shopping" element={<Shopping />} />
-                    <Route path="/MyYummy" element={<MyYummy />} />
-                    <Route path="/SignIn" element={<SignInPage />} />
-                  </Routes>
+        <ThemeProvider>
+          <SelectedRecipesProvider>
+            <RecipesForShoppingListProvider>
+              <ShoppingListProvider>
+                {" "}
+                {/* Wrap contents with ThemeProvider */}
+                <div className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                  <NavBar />
+                  <div className="font-serif">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/A6/" element={<Home />} />
+                      <Route path="/Home" element={<Home />} />
+                      <Route path="/Recipes" element={<Recipes />} />
+                      <Route path="/Plan" element={<PlanMeal />} />
+                      <Route path="/Share" element={<Share />} />
+                      <Route path="/Shopping" element={<Shopping />} />
+                      <Route path="/MyYummy" element={<MyYummy />} />
+                      <Route path="/SignIn" element={<SignInPage />} />
+                    </Routes>
+                  </div>
+                  <Footer />
                 </div>
-                <Footer />
-              </div>
-            </ShoppingListProvider>
-          </RecipesForShoppingListProvider>
-        </SelectedRecipesProvider>
+              </ShoppingListProvider>
+            </RecipesForShoppingListProvider>
+          </SelectedRecipesProvider>
+        </ThemeProvider>
       </UserProvider>
     </Router>
   );

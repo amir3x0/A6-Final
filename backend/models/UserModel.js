@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
   favoriteRecipes: [{ type: String, default: [] }],
   uploadedRecipes: [{ type: String, default: [] }],
   MealPlans: [ { type: String, default: [] }],
+  theme: {
+    type: String,
+    enum: ["light", "dark"],
+    default: "light"
+  },
 });
 
 // Pre-save hook to hash password before saving a new user

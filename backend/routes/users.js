@@ -5,6 +5,7 @@ const {
   addFavorite,
   removeFavorite,
   bioUpdate,
+  themeUpdate,
 } = require("../controllers/userController");
 // const verifyToken = require("../middlewares/authmiddleware");
 const router = express.Router();
@@ -20,5 +21,7 @@ router.post("/favorite", addFavorite);
 router.delete("/deletefavorite", removeFavorite);
 
 router.post("/bio", bioUpdate);
+
+router.post("/theme", themeUpdate);
 
 module.exports = router;

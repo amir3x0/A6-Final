@@ -4,6 +4,7 @@ import {
   fetchRecipeById,
   fetchMealPlansbyId,
   updateUserBio,
+  updateUserTheme,
 } from "../services/BackendService";
 import RecipeCard from "./RecipeCard";
 import MealCard from "./MealCard";
@@ -18,20 +19,30 @@ async function fetchAvatarPics() {
   ];
 }
 
-const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio }) => {
-  const [bio, setBio] = useState(currentUser.bio || "");
+const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio, onUpdateTheme }) => {
+  const [bio, setBio] = useState(currentUser.bio || '');
+  const [theme, setTheme] = useState(currentUser.theme || 'light');
 
   useEffect(() => {
-    setBio(currentUser.bio || "");
+    if (currentUser) {
+      setBio(currentUser.bio || '');
+      setTheme(currentUser.theme || 'light');
+    }
   }, [currentUser]);
 
   const handleBioChange = (event) => {
     setBio(event.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleThemeChange = (event) => {
+    setTheme(event.target.value);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSaveBio(bio);
+    // Ensure to await these operations if they are asynchronous
+    await onSaveBio(bio);
+    await onUpdateTheme(theme);
     onClose(); // Close the modal after saving
   };
 
@@ -42,7 +53,6 @@ const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio }) => {
       <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-2xl font-semibold">Settings</h2>
         <form onSubmit={handleSubmit}>
-          {/* Bio editing field */}
           <div className="my-4">
             <label htmlFor="bio" className="block mb-2 text-sm font-bold text-gray-700">
               Bio
@@ -53,9 +63,22 @@ const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio }) => {
               className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
               value={bio}
               onChange={handleBioChange}
-            ></textarea>
+            />
           </div>
-          {/* Other settings can be added here */}
+          <div className="my-4">
+            <label htmlFor="theme" className="block mb-2 text-sm font-bold text-gray-700">
+              Theme
+            </label>
+            <select
+              id="theme"
+              value={theme}
+              onChange={handleThemeChange}
+              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none"
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -184,18 +207,35 @@ export default function MyYummy() {
   };
 
   const onSaveBio = async (newBio) => {
-    setLoadingStatus("Updating Bio"); 
+    setLoadingStatus("Updating Bio");
     try {
-      await updateUserBio(user._id, newBio); 
+      await updateUserBio(user._id, newBio);
       setUser((currentUser) => ({
         ...currentUser,
         bio: newBio,
       }));
       setLoadingStatus("Loaded");
-      alert("Bio updated successfully!");
+      // alert("Bio updated successfully!");
     } catch (error) {
       console.error("Failed to update bio:", error);
-      setError("Failed to update bio. Please try again."); 
+      setError("Failed to update bio. Please try again.");
+      setLoadingStatus("Error");
+    }
+  };
+
+  const onUpdateTheme = async (newTheme) => {
+    setLoadingStatus("Updating Theme");
+    try {
+      await updateUserTheme(user._id, newTheme);
+      setUser((currentUser) => ({
+        ...currentUser,
+        theme: newTheme,
+      }));
+      setLoadingStatus("Loaded");
+      // alert("Theme updated successfully!");
+    } catch (error) {
+      console.error("Failed to update theme:", error);
+      setError("Failed to update theme. Please try again.");
       setLoadingStatus("Error");
     }
   };
@@ -261,6 +301,7 @@ export default function MyYummy() {
         onClose={toggleSettingsVisibility}
         currentUser={user}
         onSaveBio={onSaveBio}
+        onUpdateTheme={onUpdateTheme}
       />{" "}
     </div>
   );

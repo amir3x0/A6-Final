@@ -103,10 +103,28 @@ const bioUpdate = async (req, res) => {
   }
 };
 
+const themeUpdate = async (req, res) => {
+  const { userId, theme } = req.body;
+  console.log(`Updating theme for user ${userId}`);
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    user.theme = theme;
+    await user.save();
+    res.status(200).send("theme updated successfully");
+  } catch (error) {
+    console.error("Error updating theme:", error);
+    res.status(500).send("Internal server error");
+  }
+};
+
 module.exports = {
   createUser,
   getUser,
   addFavorite,
   removeFavorite,
   bioUpdate,
+  themeUpdate,
 };

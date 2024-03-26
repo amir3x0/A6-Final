@@ -134,3 +134,15 @@ export const updateUserBio = async (userId, newBio) => {
     throw error; 
   }
 };
+
+export const updateUserTheme = async (userId, newTheme) => {
+  try {
+    const response = await axios.post(`${API_URL}/users/theme/`, {userId,
+      theme: newTheme,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update user theme:', error);
+    throw error;
+  }
+};
