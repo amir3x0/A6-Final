@@ -29,6 +29,7 @@ const getUser = async (req, res) => {
       favoriteRecipes: user.favoriteRecipes,
       uploadedRecipes: user.uploadedRecipes,
       MealPlans: user.MealPlans,
+      theme: user.theme,
     };
     // console.log(`User logged in: ${user}`);
     res.status(200).json(userResponse);
