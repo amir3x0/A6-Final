@@ -19,14 +19,20 @@ async function fetchAvatarPics() {
   ];
 }
 
-const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio, onUpdateTheme }) => {
-  const [bio, setBio] = useState(currentUser.bio || '');
-  const [theme, setTheme] = useState(currentUser.theme || 'light');
+const SettingsModal = ({
+  isVisible,
+  onClose,
+  currentUser,
+  onSaveBio,
+  onUpdateTheme,
+}) => {
+  const [bio, setBio] = useState(currentUser.bio || "");
+  const [theme, setTheme] = useState(currentUser.theme || "light");
 
   useEffect(() => {
     if (currentUser) {
-      setBio(currentUser.bio || '');
-      setTheme(currentUser.theme || 'light');
+      setBio(currentUser.bio || "");
+      setTheme(currentUser.theme || "light");
     }
   }, [currentUser]);
 
@@ -54,7 +60,10 @@ const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio, onUpdateThe
         <h2 className="text-2xl font-semibold">Settings</h2>
         <form onSubmit={handleSubmit}>
           <div className="my-4">
-            <label htmlFor="bio" className="block mb-2 text-sm font-bold text-gray-700">
+            <label
+              htmlFor="bio"
+              className="block mb-2 text-sm font-bold text-gray-700"
+            >
               Bio
             </label>
             <textarea
@@ -66,7 +75,10 @@ const SettingsModal = ({ isVisible, onClose, currentUser, onSaveBio, onUpdateThe
             />
           </div>
           <div className="my-4">
-            <label htmlFor="theme" className="block mb-2 text-sm font-bold text-gray-700">
+            <label
+              htmlFor="theme"
+              className="block mb-2 text-sm font-bold text-gray-700"
+            >
               Theme
             </label>
             <select
@@ -156,51 +168,57 @@ export default function MyYummy() {
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
 
-  const renderRecipeCards = (recipes) => (
-    <div
-      className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
-        expandedRecipeId ? "lg:gap-8 xl:gap-10" : ""
-      }`}
-    >
-      {recipes.map((recipe) => (
+    const renderRecipeCards = (recipes) => (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
         <div
-          key={recipe._id}
-          className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white ${
-            expandedRecipeId === recipe._id
-              ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4"
-              : ""
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
+            expandedRecipeId ? "lg:gap-8 xl:gap-10" : ""
           }`}
         >
-          <RecipeCard
-            recipe={recipe}
-            onClick={() => handleRecipeClick(recipe._id)}
-            isExpanded={expandedRecipeId === recipe._id}
-          />
+          {recipes.map((recipe) => (
+            <div
+              key={recipe._id}
+              className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800 ${
+                expandedRecipeId === recipe._id
+                  ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                  : ""
+              }`}
+            >
+              <RecipeCard
+                recipe={recipe}
+                onClick={() => handleRecipeClick(recipe._id)}
+                isExpanded={expandedRecipeId === recipe._id}
+              />
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+    
 
   const handleExpandChange = (mealId, isExpanded) => {
     setExpandedMealId(isExpanded ? mealId : null);
   };
 
   const renderMealPlans = (mealPlans) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {mealPlans.map((meal) => (
-        <div
-          key={meal._id}
-          className={`meal-plan-container transition duration-300 transform hover:-translate-y-1 ${
-            expandedMealId === meal._id
-              ? "sm:col-span-2 lg:col-span-3 xl:col-span-4"
-              : "col-span-1"
-          }`}
-        >
-          <MealCard meal={meal} onExpandChange={handleExpandChange} />
-        </div>
-      ))}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {mealPlans.map((meal) => (
+          <div
+            key={meal._id}
+            className={`meal-plan-container transition duration-300 transform hover:-translate-y-1 ${
+              expandedMealId === meal._id
+                ? "sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                : "col-span-1"
+            }`}
+          >
+            <MealCard meal={meal} onExpandChange={handleExpandChange} />
+          </div>
+        ))}
+      </div>
     </div>
   );
+  
 
   const toggleSettingsVisibility = () => {
     setIsSettingsVisible(!isSettingsVisible);
@@ -244,34 +262,34 @@ export default function MyYummy() {
   if (loadingStatus === "Error") return <div>Error: {error}</div>;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap -mb-4">
-        {/* Profile Section */}
-        <div className="w-full sm:w-1/2 lg:w-1/3 p-4">
-          <div className="flex flex-col items-center bg-white rounded-lg shadow-xl relative">
-            <img
-              src={user.profileImageUrl || "default_profile_image_url"}
-              alt="Profile"
-              className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 cursor-pointer"
-            />
-            {/* User Details */}
-            <h2 className="text-2xl md:text-3xl font-extrabold text-center mt-4 text-blue-600">
-              {user.name}
-            </h2>
-            <p className="text-base text-center text-gray-500 mt-2">
-              @{user.username}
-            </p>
-            <p className="text-center mt-4 text-lg text-gray-700">
-              {user.bio || "No bio available"}
-            </p>
-            <button
-              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
-              onClick={toggleSettingsVisibility}
-            >
-              Settings
-            </button>
-          </div>
-        </div>
+<div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+  <div className="flex flex-wrap -mb-4">
+    {/* Profile Section */}
+    <div className="w-full sm:w-1/2 lg:w-1/3 p-4">
+      <div className="flex flex-col items-center bg-white dark:bg-gray-800 rounded-lg shadow-xl relative">
+        <img
+          src={user.profileImageUrl || "default_profile_image_url"}
+          alt="Profile"
+          className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 dark:border-blue-700 cursor-pointer"
+        />
+        {/* User Details */}
+        <h2 className="text-2xl md:text-3xl font-extrabold text-center mt-4 text-blue-600 dark:text-blue-400">
+          {user.name}
+        </h2>
+        <p className="text-base text-center text-gray-500 dark:text-gray-400 mt-2">
+          @{user.username}
+        </p>
+        <p className="text-center mt-4 text-lg text-gray-700 dark:text-gray-300">
+          {user.bio || "No bio available"}
+        </p>
+        <button
+          className="mt-6 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
+          onClick={toggleSettingsVisibility}
+        >
+          Settings
+        </button>
+      </div>
+    </div>
 
         {/* Recipes and Meal Plans */}
         <div className="w-full lg:w-2/3 px-4">

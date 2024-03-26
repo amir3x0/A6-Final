@@ -15,10 +15,12 @@ const Share = () => {
   const [instructions, setInstructions] = useState([""]);
   const [imageUrl, setImageUrl] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalNutrition, setTotalNutrition] = useState({total: 0,
-                                                        protein: 0,
-                                                        carbs: 0,
-                                                        fat: 0,});
+  const [totalNutrition, setTotalNutrition] = useState({
+    total: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
   let shareMsg = "";
 
   const fetchIngredients = async (query) => {
@@ -171,8 +173,8 @@ const Share = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 shadow-lg">
-      <h1 className="flex justify-center text-4xl font-semibold text-gray-800 my-10">
+    <div className="max-w-6xl mx-auto p-6 bg-gray-50 dark:bg-gray-800 shadow-lg">
+      <h1 className="flex justify-center text-4xl font-semibold text-gray-800 dark:text-gray-200 my-10">
         Share Your Recipe
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -183,7 +185,7 @@ const Share = () => {
             placeholder="Enter image URL"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            className="input text-gray-700 border border-gray-300 rounded-md py-2 px-4 w-full md:w-1/2"
+            className="input text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md py-2 px-4 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
           {imageUrl && (
             <img
@@ -195,29 +197,37 @@ const Share = () => {
         </div>
 
         {/* Recipe Name */}
-        <div>
-          <label className="block text-gray-700 text-lg font-bold mb-2">
+        <div className="mb-6">
+          <label
+            for="recipeName"
+            className="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-2"
+          >
             Recipe Name
           </label>
           <input
             type="text"
             id="recipeName"
+            name="recipeName"
             value={recipeName}
             onChange={(e) => setRecipeName(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            placeholder="Enter your recipe name"
+            className="form-input mt-1 block w-full py-2 px-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
 
         {/* Difficulty */}
-        <div>
-          <label className="block text-gray-700 text-lg font-bold mb-2">
+        <div className="mb-6">
+          <label
+            for="difficulty"
+            className="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-2"
+          >
             Difficulty
           </label>
           <select
             id="difficulty"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="form-select mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">Select Difficulty</option>
             <option value="Easy">Easy</option>
@@ -229,14 +239,14 @@ const Share = () => {
 
         {/* Category */}
         <div className="col-span-1 md:col-span-2">
-          <label className="block text-gray-700 text-lg font-bold mb-2">
+          <label className="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-2">
             Meal Category
           </label>
           <select
             id="mealCategory"
             value={mealCategory}
             onChange={handleMealCategoryChange}
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           >
             <option value="">Select Meal Category</option>
             <option value="Appetizers">Appetizers</option>
@@ -250,7 +260,7 @@ const Share = () => {
         <div className="col-span-1 md:col-span-2">
           <label
             htmlFor="description"
-            className="block text-gray-700 text-lg font-bold mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-2"
           >
             Description
           </label>
@@ -259,13 +269,13 @@ const Share = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows="4"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           ></textarea>
         </div>
 
         {/* Instructions */}
         <div className="col-span-1 md:col-span-2">
-          <label className="block text-gray-700 text-lg font-bold mb-2">
+          <label className="block text-gray-700 dark:text-gray-300 text-lg font-bold mb-2">
             Instructions
           </label>
           {instructions.map((instruction, index) => (
@@ -275,11 +285,11 @@ const Share = () => {
                 value={instruction}
                 onChange={(e) => updateInstruction(index, e.target.value)}
                 placeholder={`Step ${index + 1}`}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               />
               <button
                 onClick={() => handleDeleteInstruction(index)}
-                className="text-red-500 font-bold hover:text-red-700"
+                className="text-red-500 hover:text-red-700 dark:hover:text-red-500"
               >
                 Remove
               </button>
@@ -297,14 +307,14 @@ const Share = () => {
 
         {/* Ingredient Search */}
         <div>
-          <p className="font-semibold text-lg text-gray-700 mb-4">
+          <p className="font-semibold text-lg text-gray-700 dark:text-gray-300 mb-4">
             Search Ingredients
           </p>
           <input
             type="text"
             value={searchTerm}
             onChange={handleSearch}
-            className="border-gray-300 rounded-lg py-2 px-4 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="border-gray-300 dark:border-gray-600 rounded-lg py-2 px-4 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300"
           />
           <ul className="list-none">
             {searchResults &&
@@ -312,7 +322,7 @@ const Share = () => {
                 <li
                   key={ingredient.id}
                   onClick={() => addIngredient(ingredient)}
-                  className="cursor-pointer p-2 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out"
+                  className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition duration-150 ease-in-out"
                 >
                   {ingredient.name}
                 </li>
@@ -322,32 +332,45 @@ const Share = () => {
 
         {/* Selected Ingredients */}
         <div>
-          <p className="font-semibold text-lg text-gray-700 mb-4">
+          <p className="font-semibold text-lg mb-4 text-gray-700 dark:text-gray-300">
             Selected Ingredients
           </p>
           {selectedIngredients.map((ingredient, index) => (
             <div
               key={index}
-              className="flex items-center space-x-2 mb-4 bg-gray-50 p-4 rounded-lg shadow"
+              className="flex items-center space-x-4 mb-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md dark:shadow-sm transition ease-in-out duration-150"
             >
-              <span className="flex-grow">{ingredient.name}</span>
+              <span className="flex-grow text-gray-900 dark:text-gray-200">
+                {ingredient.name}
+              </span>
               <input
                 type="number"
                 placeholder="Quantity"
                 value={ingredient.quantity}
-                className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                onChange={(e) => updateSelectedIngredient(index, "quantity", e.target.value)}
+                className="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm text-gray-700 dark:text-gray-200 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300"
+                onChange={(e) =>
+                  updateSelectedIngredient(index, "quantity", e.target.value)
+                }
               />
               <select
-                className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="border-2 border-gray-300 dark:border-gray-600 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-300"
                 value={ingredient.unit}
-                onChange={(e) => updateSelectedIngredient(index, "unit", e.target.value)}
+                onChange={(e) =>
+                  updateSelectedIngredient(index, "unit", e.target.value)
+                }
               >
                 {ingredient.possibleUnits?.map((unit, unitIndex) => (
                   <option key={unitIndex} value={unit}>
                     {unit}
                   </option>
-                )) || <option value="unit">Unit</option>}
+                )) || (
+                  <option
+                    value="unit"
+                    className="dark:bg-gray-700 dark:text-gray-300"
+                  >
+                    Unit
+                  </option>
+                )}
               </select>
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out"
@@ -363,23 +386,23 @@ const Share = () => {
       {/* Nutritional Info */}
       <div className="flex justify-center mt-6">
         <div className="grid grid-cols-4 gap-4 items-center text-center">
-          <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg shadow">
+          <div className="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-lg shadow">
             Total Calories: {totalNutrition.total.toFixed(2)}
           </div>
-          <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow">
+          <div className="bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-4 py-2 rounded-lg shadow">
             Total Protein: {totalNutrition.protein.toFixed(2)}g
           </div>
-          <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg shadow">
+          <div className="bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 px-4 py-2 rounded-lg shadow">
             Total Carbs: {totalNutrition.carbs.toFixed(2)}g
           </div>
-          <div className="bg-red-100 text-red-800 px-4 py-2 rounded-lg shadow">
+          <div className="bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-4 py-2 rounded-lg shadow">
             Total Fat: {totalNutrition.fat.toFixed(2)}g
           </div>
         </div>
       </div>
 
       {/* Share Button */}
-      <div className="flex justify-center mt-5 text-lg border-t-2 pt-5">
+      <div className="flex justify-center mt-5 text-lg border-t-2 pt-5 dark:border-gray-700">
         <button
           onClick={handleShare}
           className="transition duration-300 hover:-translate-y-1 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -388,7 +411,7 @@ const Share = () => {
         </button>
       </div>
 
-      <div className="text-lg">{shareMsg}</div>
+      <div className="text-lg dark:text-gray-300">{shareMsg}</div>
     </div>
   );
 };

@@ -25,7 +25,10 @@ const NavItem = ({ item, onItemClick, isActive }) => {
       <Link
         to={item.path}
         className={`px-4 py-2 font-bold text-lg ${
-          isActive ? "text-red-800" : "text-black"}`}
+          isActive
+            ? "text-red-800 dark:text-red-400"
+            : "text-gray-900 dark:text-gray-200"
+        } hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300`}
         onClick={onItemClick}
       >
         {item.name}
@@ -39,7 +42,7 @@ const NavItem = ({ item, onItemClick, isActive }) => {
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const {user} = useUser();
+  const { user } = useUser();
   const location = useLocation("");
   const [logged, setLogged] = useState(false);
   const [username, setUserName] = useState("");
@@ -47,18 +50,15 @@ const NavBar = () => {
   const [navItems, setNavItems] = useState(loggedOutItems);
 
   useEffect(() => {
-    const authUser = async => {
-      if (user && user.name) {
-        setUserName(user.name);
-        setLogged(true);
-        setNavItems(loggedInItems);
-      } else {
-        setLogged(false);
-        setNavItems(loggedOutItems);
-      }
-    };
-    authUser()
-  }, [navigate]);
+    if (user.name) {
+      setNavItems(loggedInItems);
+      setLogged(true);
+      setUserName(user.name);
+    } else {
+      setNavItems(loggedOutItems);
+      setLogged(false);
+    }
+  }, [user]);
 
   const navVisibilityHandler = () => {
     setNavIsVisible((curState) => {
@@ -75,17 +75,17 @@ const NavBar = () => {
   };
 
   return (
-    <section className="shadow-lg sticky top-0 left-0 right-0 z-50 bg-white mb-10">
+    <section
+      className={`shadow-lg sticky top-0 left-0 right-0 z-50 mb-10 bg-white dark:bg-gray-800 dark:shadow-gray-700/50`}
+    >
       <header className="container mx-auto px-5 flex justify-between py-4 items-center">
-        <div className="text-2xl font-bold text-red-800">
-          <span>Yu</span>
-          <span className="text-black">mm</span>
-          <span>y</span>
+        <div className="text-2xl font-bold text-red-800 dark:text-red-400">
+          Yu<span className="text-black dark:text-white">mm</span>y
         </div>
 
         {logged && (
           <div>
-            <div className="font-bold text-xl text-red-800">
+            <div className="font-bold text-xl text-red-800 dark:text-white">
               {username}
             </div>
           </div>
@@ -125,8 +125,8 @@ const NavBar = () => {
         {logged && (
           <div className="flex justify-center">
             <button
-              className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-opacity-50 transition duration-300"
-              onClick={handleLogout}
+            className="bg-red-500 dark:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 dark:hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-700 dark:focus:ring-red-500 focus:ring-opacity-50 transition duration-300"
+            onClick={handleLogout}
             >
               Logout
             </button>

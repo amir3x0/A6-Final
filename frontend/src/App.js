@@ -14,7 +14,7 @@ import { ShoppingListProvider } from "./context/ShoppingListContext";
 import { SelectedRecipesProvider } from "./context/SelectedRecipesContext";
 import { UserProvider } from "./context/UserContext";
 import { RecipesForShoppingListProvider } from "./context/RecipesForShoppingListContext";
-import ThemeProvider from "./context/ThemeContext";
+import {ThemeProvider} from "./context/ThemeContext";
 
 function App() {
   return (
