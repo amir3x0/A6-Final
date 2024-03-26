@@ -75,8 +75,8 @@ const ShoppingSection = () => {
   const combinedShoppingList = [...initialShoppingList, ...manuallyAddedIngredients, ...recipeIngredients];
   
   return (
-    <div className="container mx-auto p-4 max-w-8xl relative grid grid-cols-2 gap-4" style={{ backgroundImage: `url(${ShopBg})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
-      <div className="col-span-1 bg-opacity-12 p-4 rounded-lg flex flex-col justify-center items-center">
+    <div className="container mx-auto p-4 max-w-8xl relative grid grid-cols-2 gap-4" style={{ backgroundImage: `url(${ShopBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="col-span-1 bg-opacity-12 p-4 rounded-lg flex flex-col justify-center items-center ">
           <button
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out mb-4"
             onClick={handleAddRecipe}
