@@ -27,13 +27,16 @@ const ShoppingSection = () => {
   }, [recipesForShoppingList]);
 
   const parseQuantity = (quantity) => {
-    if (!quantity) return 0;
-    if (quantity.includes('/')) {
-      const [numerator, denominator] = quantity.split('/');
+    // Convert quantity to a string to ensure string methods can be used
+    const quantityStr = String(quantity);
+    if (!quantityStr) return 0;
+    if (quantityStr.includes('/')) {
+      const [numerator, denominator] = quantityStr.split('/');
       return parseFloat(numerator) / parseFloat(denominator);
     }
-    return parseFloat(quantity);
+    return parseFloat(quantityStr);
   };
+  
 
   const handleAddRecipe = () => {
     navigate("/recipes", { state: { fromShoppingList: true } });
@@ -122,46 +125,37 @@ const ShoppingSection = () => {
           Selected recipes for shopping list
         </h2>
         <div className="overflow-auto max-h-96">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 font-semibold text-left text-gray-600 dark:text-gray-300 uppercase">
+                <th className="px-6 py-3 font-semibold text-left text-gray-600 uppercase">
                   Recipe
                 </th>
-                <th className="px-6 py-3 font-semibold text-left text-gray-600 dark:text-gray-300 uppercase">
+                <th className="px-6 py-3 font-semibold text-left text-gray-600 uppercase">
                   Quantity
                 </th>
-                <th className="px-6 py-3 font-semibold text-left text-gray-600 dark:text-gray-300 uppercase">
+                <th className="px-6 py-3 font-semibold text-left text-gray-600 uppercase">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {recipesForShoppingList.map((recipe, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-200">
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {recipe.title}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {recipe.quantity}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 flex space-x-2">
-                    <button
-                      onClick={() => handleAddQuantity(recipe._id)}
-                      className="bg-green-500 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-800 text-white font-bold py-2 px-4 rounded"
-                    >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <button onClick={() => handleAddQuantity(recipe._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
                       +
                     </button>
                     <button onClick={() => handleSubQuantity(recipe._id)} className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
                       -
                     </button>
-                    <button
-                      onClick={() => handleRemoveRecipe(recipe._id)}
-                      className="bg-red-500 hover:bg-red-600 dark:bg-red-700 dark:hover:bg-red-800 text-white font-bold py-2 px-4 rounded"
-                    >
+                    <button onClick={() => handleRemoveRecipe(recipe._id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
                       Remove
                     </button>
                   </td>
@@ -171,23 +165,22 @@ const ShoppingSection = () => {
           </table>
         </div>
       </div>
-
       <div className="col-span-1"></div>
       <div className="col-span-1 shadow-lg bg-gray-100 p-4 rounded-lg bg-opacity-80">
         <h2 className="text-2xl font-extrabold text-indigo-600 tracking-tight">
           Shopping List
         </h2>
         <div className="overflow-auto max-h-96">
-          <table className="min-w-full text-sm divide-y divide-gray-200 dark:divide-gray-600">
-            <thead className="bg-gray-50 dark:bg-gray-800">
+          <table className="min-w-full text-sm divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 font-semibold text-left text-gray-600 dark:text-gray-200 uppercase">
+                <th className="px-4 py-3 font-semibold text-left text-gray-600 uppercase">
                   Ingredient
                 </th>
-                <th className="px-4 py-3 font-semibold text-left text-gray-600 dark:text-gray-200 uppercase">
+                <th className="px-4 py-3 font-semibold text-left text-gray-600 uppercase">
                   Quantity
                 </th>
-                <th className="px-4 py-3 font-semibold text-left text-gray-600 dark:text-gray-200 uppercase">
+                <th className="px-4 py-3 font-semibold text-left text-gray-600 uppercase">
                   Unit
                 </th>
               </tr>
