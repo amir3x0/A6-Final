@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import { useUser } from "../../context/UserContext";
-import { shareRecipe } from "../../services/BackendService";
+import { shareRecipe, updateUserUploadedRecipes } from "../../services/BackendService";
 
 const Share = () => {
   document.title = "Share Recipe";
-  const apiKey = "b53b0012d84a4a5284dd99e12b127fde";
-  const { user } = useUser();
+  const apiKey = "99ef18d154da4865a3a651236819f073"; // 89b5d3e465a34953a553dabc2168d109
+  const { user, updateUser } = useUser();
+  const [shareMsg, setShareMsg] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [recipeName, setRecipeName] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [searchResults, setSearchResults] = useState([]); // To store API search results
-  const [selectedIngredients, setSelectedIngredients] = useState([]); // To store user-selected ingredients with details
   const [description, setDescription] = useState("");
   const [mealCategory, setMealCategory] = useState("");
   const [instructions, setInstructions] = useState([""]);
-  const [imageUrl, setImageUrl] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [totalNutrition, setTotalNutrition] = useState({total: 0,
-                                                        protein: 0,
-                                                        carbs: 0,
-                                                        fat: 0,});
-  let shareMsg = "";
+  const [searchResults, setSearchResults] = useState([]); // To store API search results
+  const [selectedIngredients, setSelectedIngredients] = useState([]); // To store user-selected ingredients with details
+  const [totalNutrition, setTotalNutrition] = useState({
+    total: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  });
 
   const fetchIngredients = async (query) => {
     const url = `https://api.spoonacular.com/food/ingredients/search?query=${query}&apiKey=${apiKey}`;
@@ -52,14 +54,71 @@ const Share = () => {
             quantity: "",
             unit: detailedInfo.possibleUnits[0], // Use the first unit as default
             possibleUnits: detailedInfo.possibleUnits,
-            // total: ingredient.nutrition.nutrients.find(n => n.name === "Calories")?.amount || 0,
-            // fat: ingredient.nutrition.nutrients.find(n => n.name === "Fat")?.amount || 0,
-            // carbs: ingredient.nutrition.nutrients.find(n => n.name === "Carbohydrates")?.amount || 0,
-            // protein: ingredient.nutrition.nutrients.find(n => n.name === "Protein")?.amount || 0,
           },
         ]);
       }
     }
+  };
+
+  const updateNutritionForSelectedIngredient = async (
+    ingredientIndex,
+    newAmount,
+    newUnit
+  ) => {
+    const ingredient = selectedIngredients[ingredientIndex];
+    const apiUrl = `https://api.spoonacular.com/food/ingredients/${ingredient.id}/information?amount=${newAmount}&unit=${newUnit}&apiKey=${apiKey}`;
+
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      if (response.ok) {
+        const updatedNutrition = extractNutritionData(data);
+
+        // Update the selected ingredient with new nutrition details
+        const updatedIngredients = selectedIngredients.map((item, index) => {
+          if (index === ingredientIndex) {
+            return {
+              ...item,
+              nutrition: updatedNutrition,
+              quantity: newAmount,
+              unit: newUnit,
+            };
+          }
+          return item;
+        });
+
+        setSelectedIngredients(updatedIngredients);
+        calculateTotalNutrition(updatedIngredients);
+      } else {
+        throw new Error("Failed to fetch updated nutrition information");
+      }
+    } catch (error) {
+      console.error("Error updating ingredient nutrition:", error);
+    }
+  };
+
+  const calculateTotalNutrition = (ingredients) => {
+    const totalNutrition = ingredients.reduce((acc, ingredient) => {
+      Object.keys(ingredient.nutrition).forEach((key) => {
+        acc[key] =
+          (acc[key] || 0) +
+          ingredient.nutrition[key] * parseFloat(ingredient.quantity);
+      });
+      return acc;
+    }, {});
+
+    setTotalNutrition(totalNutrition);
+  };
+
+  // Extract nutrition data from API response
+  const extractNutritionData = (data) => {
+    const nutrients = data.nutrition.nutrients;
+    return {
+      total: nutrients.find((n) => n.name === "Calories")?.amount || 0,
+      protein: nutrients.find((n) => n.name === "Protein")?.amount || 0,
+      carbs: nutrients.find((n) => n.name === "Carbohydrates")?.amount || 0,
+      fat: nutrients.find((n) => n.name === "Fat")?.amount || 0,
+    };
   };
 
   const fetchIngredientDetails = async (ingredientId) => {
@@ -78,15 +137,26 @@ const Share = () => {
     }
   };
 
-  const updateSelectedIngredient = (index, field, value) => {
-    const updatedIngredients = selectedIngredients.map((ingredient, i) => {
-      if (i === index) {
-        return { ...ingredient, [field]: value };
-      }
-      return ingredient;
-    });
+  const updateSelectedIngredient = async (index, field, value) => {
+    let updatedIngredients = [...selectedIngredients];
+    let ingredientToUpdate = updatedIngredients[index];
+
+    ingredientToUpdate[field] = value || 0;
+    updatedIngredients[index] = ingredientToUpdate;
+
+    // Update state immediately for UI reactivity
     setSelectedIngredients(updatedIngredients);
-    // calculateTotalNutrition();
+
+    // If the field updated is quantity or unit, re-fetch and update nutrition info
+    if (field === "quantity" || field === "unit") {
+      // This is where the conversion to grams should happen if you're targeting consistency in grams
+      // Since we're assuming all nutritional info is based on grams, ensure conversion is handled here or in the API call
+      await updateNutritionForSelectedIngredient(
+        index,
+        ingredientToUpdate.quantity,
+        ingredientToUpdate.unit
+      );
+    }
   };
 
   // const calculateTotalNutrition = () => {
@@ -150,23 +220,40 @@ const Share = () => {
       description: description,
       instructions: instructions,
       ingredients: ingredientsForShare,
-      calories: calories,
+      calories: totalNutrition,
       picture: imageUrl,
       Chef: user.username,
     };
-
     const res = await shareRecipe(recipeData);
-    if (res) {
-      setDescription("");
-      setDifficulty("");
-      setImageUrl("");
-      setSelectedIngredients([]);
-      setInstructions([""]);
-      setMealCategory("");
-      setRecipeName("");
-      shareMsg = "Your Recipe Published !";
+    if (res && res.recipe) {
+      // Updating the uploaded recipes list
+      updateUser({
+        uploadedRecipes: [...user.uploadedRecipes, res.recipe._id],
+      });
+      const updateRes = await updateUserUploadedRecipes(
+        user._id,
+        res.recipe._id
+      );
+      if (updateRes) {
+        // Reseting the form.
+        setDescription("");
+        setDifficulty("");
+        setImageUrl("");
+        setSelectedIngredients([]);
+        setInstructions([""]);
+        setMealCategory("");
+        setRecipeName("");
+        setSearchTerm("");
+        setSearchResults([]);
+        setTotalNutrition({ total: 0, protein: 0, carbs: 0, fat: 0 });
+
+        // Setting the message to show.
+        setShareMsg("Your Recipe Published Successfully !");
+      } else {
+        setShareMsg("Couldnt Change Database !");
+      }
     } else {
-      shareMsg = "Something Went Wrong !";
+      setShareMsg("Something Went Wrong !");
     }
   };
 
@@ -336,12 +423,16 @@ const Share = () => {
                 placeholder="Quantity"
                 value={ingredient.quantity}
                 className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                onChange={(e) => updateSelectedIngredient(index, "quantity", e.target.value)}
+                onChange={(e) =>
+                  updateSelectedIngredient(index, "quantity", e.target.value)
+                }
               />
               <select
                 className="border-2 border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={ingredient.unit}
-                onChange={(e) => updateSelectedIngredient(index, "unit", e.target.value)}
+                onChange={(e) =>
+                  updateSelectedIngredient(index, "unit", e.target.value)
+                }
               >
                 {ingredient.possibleUnits?.map((unit, unitIndex) => (
                   <option key={unitIndex} value={unit}>
@@ -364,16 +455,16 @@ const Share = () => {
       <div className="flex justify-center mt-6">
         <div className="grid grid-cols-4 gap-4 items-center text-center">
           <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg shadow">
-            Total Calories: {totalNutrition.total.toFixed(2)}
+            Total Calories: {totalNutrition.total.toFixed(2)} kcal
           </div>
           <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow">
-            Total Protein: {totalNutrition.protein.toFixed(2)}g
+            Total Protein: {totalNutrition.protein.toFixed(2)} g
           </div>
           <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg shadow">
-            Total Carbs: {totalNutrition.carbs.toFixed(2)}g
+            Total Carbs: {totalNutrition.carbs.toFixed(2)} g
           </div>
           <div className="bg-red-100 text-red-800 px-4 py-2 rounded-lg shadow">
-            Total Fat: {totalNutrition.fat.toFixed(2)}g
+            Total Fat: {totalNutrition.fat.toFixed(2)} g
           </div>
         </div>
       </div>
@@ -388,7 +479,14 @@ const Share = () => {
         </button>
       </div>
 
-      <div className="text-lg">{shareMsg}</div>
+      {/* Message upon success or failure. */}
+      <div
+        className={`text-center font-semibold text-lg px-4 py-2 my-3 rounded-md shadow ${
+          shareMsg.includes("Successful") ? " text-green-800" : " text-red-800"
+        }`}
+      >
+        {shareMsg}
+      </div>
     </div>
   );
 };

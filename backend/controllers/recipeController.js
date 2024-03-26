@@ -39,7 +39,7 @@ const shareRecipe = async (req, res) => {
     const recipe = new Recipe(req.body);
     // Saving the recipe document to the database
     await recipe.save();
-    res.status(200).json({ message: "Recipe shared successfully!", recipe });
+    res.status(200).json({ message: "Recipe shared successfully!", recipe: recipe });
   } catch (error) {
     // Log the error
     console.error("Error creating recipe:", error);
