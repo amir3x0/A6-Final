@@ -11,7 +11,6 @@ const CategoryLabels = {
   dessert: "Dessert",
 };
 
-// Added new prop `showSelectButton` to determine the visibility of the select button
 const RecipeCard = ({
   recipe,
   isExpanded,
@@ -108,7 +107,7 @@ const RecipeCard = ({
                   <li
                     key={index}
                     className="text-sm text-gray-700 dark:text-gray-300"
-                  >{`${ingredient.name} - ${ingredient.quantity}`}</li>
+                  >{`${ingredient.name} - ${ingredient.quantity} ${ingredient.unit}`}</li>
                 ))}
               </ul>
             </div>
@@ -117,13 +116,13 @@ const RecipeCard = ({
                 <span className="font-semibold">Calories:</span> {recipe.calories.total} kcal
               </p>
               <p className="text-sm dark:text-gray-200">
-                <span className="font-semibold">Protein:</span> {recipe.calories.protein}g
+                <span className="font-semibold">Protein:</span> {recipe.calories.protein} g
               </p>
               <p className="text-sm dark:text-gray-200">
-                <span className="font-semibold">Carbs:</span> {recipe.calories.carbs}g
+                <span className="font-semibold">Carbs:</span> {recipe.calories.carbs} g
               </p>
               <p className="text-sm dark:text-gray-200">
-                <span className="font-semibold">Fat:</span> {recipe.calories.fat}g
+                <span className="font-semibold">Fat:</span> {recipe.calories.fat} g
               </p>
             </div>
           </div>

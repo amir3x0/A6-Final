@@ -283,7 +283,7 @@ export default function MyYummy() {
           {user.bio || "No bio available"}
         </p>
         <button
-          className="mt-6 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
+          className="my-6 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
           onClick={toggleSettingsVisibility}
         >
           Settings

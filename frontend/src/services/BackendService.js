@@ -37,6 +37,25 @@ export const registerNewUser = async (name, email, username, password) => {
   }
 };
 
+export const shareRecipe = async (recipe) => {
+  try {
+    const res = await axios.post(`${API_URL}/recipes/share`, recipe);
+    return res.data;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Updating the uploaded recipes of a user.
+export const updateUserUploadedRecipes = async (userId, recipeId) => {
+  try {
+    const res = await axios.post(`${API_URL}/users/updateShare`, { userId, recipeId });
+    return res.data;
+  } catch (error) {
+    return false;
+  }
+};
+
 export const authenticateUser = async (username, password) => {
   try {
     const response = await axios.post(`${API_URL}/users/login`, {
@@ -53,16 +72,6 @@ export const authenticateUser = async (username, password) => {
     return false;
   }
 };
-
-export const shareRecipe = async (recipe) => {
-  try {
-    await axios.post(`${API_URL}/recipes/share`, recipe);
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
 
 export const fetchRecipes = async () => {
   try {
@@ -83,7 +92,8 @@ export const fetchRecipeById = async (recipeId) => {
   }
 };
 
-export const  fetchMealPlansbyId = async (mealId) => {
+
+export const fetchMealPlansbyId = async (mealId) => {
   try {
     const response = await axios.get(`${API_URL}/meals/loadmeal/${mealId}`);
     return response.data;

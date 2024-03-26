@@ -120,11 +120,28 @@ const themeUpdate = async (req, res) => {
   }
 };
 
+// Function to upload a new shared recipe to user.
+const addUploadedRecipe = async (req, res) => {
+  const { userId, recipeId} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    user.uploadedRecipes.push(recipeId);
+    await user.save();
+    res.status(200).send("All guchi.");
+  } catch (error) {
+    res.status(500).send("Something went wrong, server side.");
+  }
+}
+
 module.exports = {
   createUser,
   getUser,
   addFavorite,
   removeFavorite,
+  addUploadedRecipe,
   bioUpdate,
   themeUpdate,
 };
