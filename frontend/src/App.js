@@ -22,7 +22,7 @@ function App() {
       <UserProvider>
         <ThemeProvider>
           <SelectedRecipesProvider>
-            <RecipesForShoppingListProvider>
+            <RecipesForShoppingListProvider>  
               <ShoppingListProvider>
                 {" "}
                 {/* Wrap contents with ThemeProvider */}
