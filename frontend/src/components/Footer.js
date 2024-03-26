@@ -18,7 +18,7 @@ export default function Footer() {
                             Amir: Amir.Mishayev@e.braude.ac.il<br/>
                             Dana: Dana.Soudry@e.braude.ac.il<br/>
                             Lital: lital.leschinsky@e.braude.ac.il<br/>
-                            Michael: michael.trifonov@e.braude.ac.il
+                            Michael: Michael.Trifonov@e.braude.ac.il
                         </p>
                     </div>
                 </div>

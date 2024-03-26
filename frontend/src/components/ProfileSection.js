@@ -1,286 +1,370 @@
-import React, { useState } from "react";
-import Recipe from "../components/RecipeCard";
-import Settings from "./settings"; // Adjust the import path as necessary
+import React, { useState, useEffect } from "react";
+import { useUser } from "../context/UserContext";
+import {
+  fetchRecipeById,
+  fetchMealPlansbyId,
+  updateUserBio,
+  updateUserTheme,
+  updateUserProfileImage,
+} from "../services/BackendService";
+import RecipeCard from "./RecipeCard";
+import MealCard from "./MealCard";
 
-// Correct way to reference the image from the public directory in a JS file
+async function fetchAvatarPics() {
+  return [
+    "/avatar_pics/avatar1.jpg",
+    "/avatar_pics/avatar2.jpg",
+    "/avatar_pics/avatar3.jpg",
+    "/avatar_pics/avatar4.jpg",
+    "/avatar_pics/avatar5.jpg",
+  ];
+}
 
-const images = {
-  ramsay: process.env.PUBLIC_URL + "/images/MyYummy_img/ramsay.jpg",
-  spaghetti_carbonara:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/spaghetti_carbonara.jpg",
-  Vegetarian_Chili:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Vegetarian-Chili.jpg",
-  lemon_salmon: process.env.PUBLIC_URL + "/images/MyYummy_img/lemon_salmon.jpg",
-  chicken_tikka:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/chicken-tikka.jpg",
-  Beef_Stir_Fry:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Beef-Stir-Fry.jpg",
-  Quinoa_Salad_with_Avocado:
-    process.env.PUBLIC_URL +
-    "/images/MyYummy_img/Quinoa-Salad-with-Avocado.jpg",
-  Vegan_Chocolate_Cake:
-    process.env.PUBLIC_URL + "/images/MyYummy_img/Vegan-Chocolate-Cake.jpg",
+const SettingsModal = ({
+  isVisible,
+  onClose,
+  currentUser,
+  onSaveBio,
+  onUpdateTheme,
+  onUpdateProfileImage,
+}) => {
+  const [bio, setBio] = useState(currentUser.bio || "");
+  const [theme, setTheme] = useState(currentUser.theme || "light");
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    currentUser.profileImageUrl || ""
+  );
+
+  useEffect(() => {
+    if (currentUser) {
+      setBio(currentUser.bio || "");
+      setTheme(currentUser.theme || "light");
+      setProfileImageUrl(currentUser.profileImageUrl || "");
+    }
+  }, [currentUser]);
+
+  const handleBioChange = (event) => {
+    setBio(event.target.value);
+  };
+
+  const handleThemeChange = (event) => {
+    setTheme(event.target.value);
+  };
+
+  const handleProfileImageUrlChange = (event) =>
+    setProfileImageUrl(event.target.value);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await onSaveBio(bio);
+    await onUpdateTheme(theme);
+    await onUpdateProfileImage(profileImageUrl); // Update the profile image URL
+    onClose(); // Close the modal after saving
+  };
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 flex justify-center items-center">
+      <div className="bg-white dark:bg-gray-700 p-5 rounded-lg shadow-lg max-w-md w-full">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          Settings
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="my-4">
+            <label
+              htmlFor="bio"
+              className="block mb-2 text-sm font-bold text-gray-700 dark:text-gray-200"
+            >
+              Bio
+            </label>
+            <textarea
+              id="bio"
+              rows="4"
+              className="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+              value={bio}
+              onChange={handleBioChange}
+            />
+          </div>
+          <div className="my-4">
+            <label
+              htmlFor="theme"
+              className="block mb-2 text-sm font-bold text-gray-700 dark:text-gray-200"
+            >
+              Theme
+            </label>
+            <select
+              id="theme"
+              value={theme}
+              onChange={handleThemeChange}
+              className="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+
+          <div className="my-4">
+            <label
+              htmlFor="profileImageUrl"
+              className="block mb-2 text-sm font-bold text-gray-700 dark:text-gray-200"
+            >
+              Profile Image URL
+            </label>
+            <input
+              type="text"
+              id="profileImageUrl"
+              className="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none dark:border-gray-600 dark:bg-gray-800"
+              value={profileImageUrl}
+              onChange={handleProfileImageUrlChange}
+              placeholder="Enter image URL"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
-
-const userData = {
-  name: "Gordon Ramsay",
-  username: "GRamsay",
-  profileImageUrl: images.ramsay,
-  bio: "Food enthusiast. Love to cook and explore new recipes.",
-
-  favoriteRecipes: [
-    {
-      id: 1,
-      title: "Spaghetti Carbonara",
-      description: "A classic Italian pasta dish...",
-      instructions: ["Step 1", "Step 2"],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted to match the enum
-      ingredients: [ // Added based on the new structure
-        { name: "Spaghetti", quantity: "400g" },
-        { name: "Pancetta", quantity: "150g" },
-        { name: "Eggs", quantity: "3" },
-        { name: "Parmesan Cheese", quantity: "75g" },
-      ],
-      picture: images.spaghetti_carbonara,
-      calories: { total: 600, protein: "20g", carbs: "80g", fat: "22g" },
-    },
-    {
-      id: 2,
-      title: "Vegetarian Chili",
-      description: "A hearty, filling chili that's packed with fiber and protein.",
-      instructions: ["Step 1", "Step 2", "Step 3"],
-      difficulty: "Easy",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Kidney beans", quantity: "1 can" },
-        { name: "Chickpeas", quantity: "1 can" },
-        { name: "Tomatoes", quantity: "2 cans" },
-        { name: "Bell peppers", quantity: "2" },
-        { name: "Onion", quantity: "1" },
-        { name: "Chili powder", quantity: "2 tbsp" },
-      ],
-      picture: images.Vegetarian_Chili,
-      calories: { total: 450, protein: "15g", carbs: "65g", fat: "10g" },
-    },
-    {
-      id: 3,
-      title: "Lemon Garlic Salmon",
-      description: "Flavorful salmon with a lemon garlic butter sauce.",
-      instructions: ["Step 1", "Step 2"],
-      difficulty: "Easy",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Salmon fillets", quantity: "4" },
-        { name: "Lemon", quantity: "1" },
-        { name: "Garlic", quantity: "3 cloves" },
-        { name: "Butter", quantity: "50g" },
-      ],
-      picture: images.lemon_salmon,
-      calories: { total: 500, protein: "45g", carbs: "5g", fat: "35g" },
-    },
-    {
-      id: 4,
-      title: "Chicken Tikka Masala",
-      description: "A delicious creamy and richly spiced Indian chicken dish.",
-      instructions: ["Step 1", "Step 2", "Step 3", "Step 4"],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Chicken breast", quantity: "500g" },
-        { name: "Yogurt", quantity: "200ml" },
-        { name: "Tikka masala paste", quantity: "100g" },
-        { name: "Tomatoes", quantity: "400g" },
-        { name: "Cream", quantity: "100ml" },
-      ],
-      picture: images.chicken_tikka,
-      calories: { total: 700, protein: "50g", carbs: "50g", fat: "30g" },
-    },
-  ],
-
-  uploadedRecipes: [
-    {
-      id: 5,
-      title: "Quinoa Salad with Avocado",
-      description: "A refreshing and nutritious salad perfect for a quick lunch.",
-      instructions: ["Step 1: Rinse and cook the quinoa.", "Step 2: Chop the vegetables and avocado.", "Step 3: Mix all ingredients with dressing."],
-      difficulty: "Easy",
-      category: "appetizers", // Adjusted
-      ingredients: [
-        { name: "Quinoa", quantity: "200g" },
-        { name: "Avocado", quantity: "1" },
-        { name: "Cherry tomatoes", quantity: "100g" },
-        { name: "Cucumber", quantity: "1" },
-        { name: "Lemon juice", quantity: "2 tbsp" },
-        { name: "Olive oil", quantity: "3 tbsp" },
-      ],
-      picture: images.Quinoa_Salad_with_Avocado,
-      calories: { total: 350, protein: "8g", carbs: "45g", fat: "18g" },
-    },
-    {
-      id: 6,
-      title: "Beef Stir-Fry",
-      description: "A savory and quick beef stir-fry with vegetables, perfect for a weeknight dinner.",
-      instructions: ["Step 1: Slice beef and vegetables.", "Step 2: Stir-fry beef until browned.", "Step 3: Add vegetables and sauce, then cook until tender."],
-      difficulty: "Medium",
-      category: "mainDish", // Adjusted
-      ingredients: [
-        { name: "Beef steak", quantity: "400g" },
-        { name: "Broccoli", quantity: "1 head" },
-        { name: "Carrot", quantity: "2" },
-        { name: "Soy sauce", quantity: "50ml" },
-        { name: "Ginger", quantity: "2 tsp" },
-      ],
-      picture: images.Beef_Stir_Fry,
-      calories: { total: 500, protein: "30g", carbs: "35g", fat: "22g" },
-    },
-    {
-      id: 7,
-      title: "Vegan Chocolate Cake",
-      description: "A moist and rich chocolate cake that's completely vegan.",
-      instructions: ["Step 1: Mix dry ingredients.", "Step 2: Add wet ingredients and combine.", "Step 3: Bake until a toothpick comes out clean."],
-      difficulty: "Medium",
-      category: "dessert", // Adjusted
-      ingredients: [
-        { name: "Flour", quantity: "250g" },
-        { name: "Cocoa powder", quantity: "75g" },
-        { name: "Baking soda", quantity: "2 tsp" },
-        { name: "Sugar", quantity: "200g" },
-        { name: "Vegetable oil", quantity: "100ml" },
-        { name: "Vinegar", quantity: "1 tbsp" },
-      ],
-      picture: images.Vegan_Chocolate_Cake,
-      calories: { total: 450, protein: "6g", carbs: "60g", fat: "20g" },
-    },
-  ],
-
-  mealPlans: [
-    { id: 1, title: "Weekly Family Plan" },
-    { id: 2, title: "Low Carb Plan" },
-    // Add more meal plans as needed
-  ],
-};
-
 
 export default function MyYummy() {
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
+  const { user, setUser } = useUser();
+  const [loadingStatus, setLoadingStatus] = useState("Loading");
+  const [error, setError] = useState("");
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [uploadedRecipes, setUploadedRecipes] = useState([]);
+  const [MealPlans, setMealPlans] = useState([]);
   const [expandedRecipeId, setExpandedRecipeId] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [expandedMealId, setExpandedMealId] = useState(null);
+
+  useEffect(() => {
+    const initFetch = async () => {
+      setLoadingStatus("Loading");
+      try {
+        if (user) {
+          const avatarPicsResult = await fetchAvatarPics();
+          // setAvatarPics(avatarPicsResult);
+          await fetchRecipes(user.favoriteRecipes, setFavoriteRecipes);
+          await fetchRecipes(user.uploadedRecipes, setUploadedRecipes);
+          await fetchMealPlans(user.MealPlans, setMealPlans);
+          setLoadingStatus("Loaded");
+        } else {
+          throw new Error("User data not available");
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error.message);
+        setLoadingStatus("Error");
+      }
+    };
+
+    const fetchRecipes = async (recipeIds, setter) => {
+      if (recipeIds.length > 0) {
+        const recipes = await Promise.all(
+          recipeIds.map((id) => fetchRecipeById(id))
+        );
+        setter(recipes);
+      }
+    };
+
+    const fetchMealPlans = async (mealPlanIds, setter) => {
+      if (mealPlanIds.length > 0) {
+        const mealPlans = await Promise.all(
+          mealPlanIds.map((id) => fetchMealPlansbyId(id))
+        );
+        setter(mealPlans);
+      }
+    };
+
+    initFetch();
+  }, [user]);
 
   const handleRecipeClick = (id) =>
     setExpandedRecipeId(expandedRecipeId === id ? null : id);
-  const handleRecipeSelect = (id) => setSelectedRecipeId(id);
-  const toggleSettings = () => setShowSettings(!showSettings);
 
-  const renderRecipeCards = (recipes) =>
-    recipes.map((recipe) => (
+  const renderRecipeCards = (recipes) => (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
       <div
-        key={recipe.id}
-        className={`${
-          expandedRecipeId === recipe.id ? "col-span-3" : "col-span-1"
-        } transition-all duration-300 ease-in-out`}
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${
+          expandedRecipeId ? "lg:gap-8 xl:gap-10" : ""
+        }`}
       >
-        <Recipe
-          recipe={recipe}
-          isSelected={selectedRecipeId === recipe.id}
-          isExpanded={expandedRecipeId === recipe.id}
-          onSelect={() => handleRecipeSelect(recipe.id)}
-          onClick={() => handleRecipeClick(recipe.id)}
-        />
+        {recipes.map((recipe) => (
+          <div
+            key={recipe._id}
+            className={`p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800 ${
+              expandedRecipeId === recipe._id
+                ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                : ""
+            }`}
+          >
+            <RecipeCard
+              recipe={recipe}
+              onClick={() => handleRecipeClick(recipe._id)}
+              isExpanded={expandedRecipeId === recipe._id}
+            />
+          </div>
+        ))}
       </div>
-    ));
-
-  // Custom function to render the Add button
-  const renderAddButton = (onClickFunction, buttonText = "+") => (
-    <button
-      className="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      onClick={onClickFunction}
-    >
-      {buttonText}
-    </button>
+    </div>
   );
 
-  return (
-    <div className="container mx-auto px-5">
-      <div className="flex flex-wrap -mb-4">
-        {/*profile and settings Block*/}
-        <div className="flex flex-col items-center w-1/3 p-6 bg-white rounded-lg shadow-xl">
-          <img
-            src={userData.profileImageUrl}
-            alt="Profile"
-            className="rounded-full h-48 w-48 object-cover shadow-lg border-4 border-blue-300"
-          />
-          <h2 className="text-3xl font-extrabold text-center mt-4 text-blue-600">
-            {userData.name}
-          </h2>
-          <p className="text-base text-center text-gray-500 mt-2">
-            @{userData.username}
-          </p>
-          <p className="text-center mt-4 text-lg text-gray-700">
-            {userData.bio}
-          </p>
-          <button
-            className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
-            onClick={toggleSettings}
+  const handleExpandChange = (mealId, isExpanded) => {
+    setExpandedMealId(isExpanded ? mealId : null);
+  };
+
+  const renderMealPlans = (mealPlans) => (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {mealPlans.map((meal) => (
+          <div
+            key={meal._id}
+            className={`meal-plan-container transition duration-300 transform hover:-translate-y-1 ${
+              expandedMealId === meal._id
+                ? "sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                : "col-span-1"
+            }`}
           >
-            Settings
-          </button>
+            <MealCard meal={meal} onExpandChange={handleExpandChange} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const toggleSettingsVisibility = () => {
+    setIsSettingsVisible(!isSettingsVisible);
+  };
+
+  const onSaveBio = async (newBio) => {
+    setLoadingStatus("Updating Bio");
+    try {
+      await updateUserBio(user._id, newBio);
+      setUser((currentUser) => ({
+        ...currentUser,
+        bio: newBio,
+      }));
+      setLoadingStatus("Loaded");
+      // alert("Bio updated successfully!");
+    } catch (error) {
+      console.error("Failed to update bio:", error);
+      setError("Failed to update bio. Please try again.");
+      setLoadingStatus("Error");
+    }
+  };
+
+  const onUpdateTheme = async (newTheme) => {
+    setLoadingStatus("Updating Theme");
+    try {
+      await updateUserTheme(user._id, newTheme);
+      setUser((currentUser) => ({
+        ...currentUser,
+        theme: newTheme,
+      }));
+      setLoadingStatus("Loaded");
+      // alert("Theme updated successfully!");
+    } catch (error) {
+      console.error("Failed to update theme:", error);
+      setError("Failed to update theme. Please try again.");
+      setLoadingStatus("Error");
+    }
+  };
+
+  const onUpdateProfileImage = async (newProfileImageUrl) => {
+    setLoadingStatus("Updating Profile Image");
+    try {
+      await updateUserProfileImage(user._id, newProfileImageUrl); // Assume this function exists
+      setUser((currentUser) => ({
+        ...currentUser,
+        profileImageUrl: newProfileImageUrl,
+      }));
+      setLoadingStatus("Loaded");
+    } catch (error) {
+      console.error("Failed to update profile image:", error);
+      setError("Failed to update profile image. Please try again.");
+      setLoadingStatus("Error");
+    }
+  };
+
+  if (loadingStatus === "Loading") return <div>Loading... please wait</div>;
+  if (loadingStatus === "Error") return <div>Error: {error}</div>;
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+      <div className="flex flex-wrap -mb-4">
+        {/* Profile Section */}
+        <div className="w-full sm:w-1/2 lg:w-1/3 p-4">
+          <div className="flex flex-col items-center bg-white dark:bg-gray-800 rounded-lg shadow-xl relative">
+            <img
+              src={user.profileImageUrl || "default_profile_image_url"}
+              alt="Profile"
+              className="rounded-full h-32 w-32 md:h-48 md:w-48 object-cover shadow-lg border-4 border-blue-300 dark:border-blue-700 cursor-pointer"
+            />
+            {/* User Details */}
+            <h2 className="text-2xl md:text-3xl font-extrabold text-center mt-4 text-blue-600 dark:text-blue-400">
+              {user.name}
+            </h2>
+            <p className="text-base text-center text-gray-500 dark:text-gray-400 mt-2">
+              @{user.username}
+            </p>
+            <p className="text-center mt-4 text-lg text-gray-700 dark:text-gray-300">
+              {user.bio || "No bio available"}
+            </p>
+            <button
+              className="my-6 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-3 px-6 rounded-full transition-colors duration-150 ease-in-out"
+              onClick={toggleSettingsVisibility}
+            >
+              Settings
+            </button>
+          </div>
         </div>
 
+        {/* Recipes and Meal Plans */}
         <div className="w-full lg:w-2/3 px-4">
-          {/* Favorite Recipes */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Favorite Recipes
-              </h2>
-              {renderAddButton(() => console.log("Add Favorite Recipe"))}
+          <div className="container mx-auto px-4 py-8">
+            {/* Favorite Recipes Section */}
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold mb-8">Favorite Recipes</h2>
+              {renderRecipeCards(favoriteRecipes)}
             </div>
-            <div
-              className="grid grid-cols-3 gap-6 overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {renderRecipeCards(userData.favoriteRecipes)}
-            </div>
-          </div>
 
-          {/* Uploaded Recipes */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Uploaded Recipes
-              </h2>
-              {renderAddButton(() => console.log("Add Uploaded Recipe"))}
+            {/* Uploaded Recipes Section */}
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold mb-8">Uploaded Recipes</h2>
+              {renderRecipeCards(uploadedRecipes)}
             </div>
-            <div
-              className="grid grid-cols-3 gap-6 overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {renderRecipeCards(userData.uploadedRecipes)}
-            </div>
-          </div>
 
-          {/* Meal Plans Section */}
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
-                Meal Plans
-              </h2>
-              {renderAddButton(() => console.log("Add Meal Plan"), "+")}
-            </div>
-            <div
-              className="overflow-auto"
-              style={{ maxHeight: "calc(100px * 6)" }}
-            >
-              {userData.mealPlans.map((plan) => (
-                <div key={plan.id} className="py-2">
-                  {plan.title}
-                </div>
-              ))}
+            {/* Meal Plans Section */}
+            <div className="mb-8">
+              <h2 className="text-4xl font-bold mb-8">Meal Plans</h2>
+              {renderMealPlans(MealPlans)}
             </div>
           </div>
         </div>
       </div>
+      <SettingsModal
+        isVisible={isSettingsVisible}
+        onClose={toggleSettingsVisibility}
+        currentUser={user}
+        onSaveBio={onSaveBio}
+        onUpdateTheme={onUpdateTheme}
+        onUpdateProfileImage={onUpdateProfileImage} 
+      />{" "}
     </div>
   );
 }
