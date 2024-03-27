@@ -10,16 +10,6 @@ import {
 import RecipeCard from "./RecipeCard";
 import MealCard from "./MealCard";
 
-async function fetchAvatarPics() {
-  return [
-    "/avatar_pics/avatar1.jpg",
-    "/avatar_pics/avatar2.jpg",
-    "/avatar_pics/avatar3.jpg",
-    "/avatar_pics/avatar4.jpg",
-    "/avatar_pics/avatar5.jpg",
-  ];
-}
-
 const SettingsModal = ({
   isVisible,
   onClose,
@@ -57,8 +47,8 @@ const SettingsModal = ({
     e.preventDefault();
     await onSaveBio(bio);
     await onUpdateTheme(theme);
-    await onUpdateProfileImage(profileImageUrl); // Update the profile image URL
-    onClose(); // Close the modal after saving
+    await onUpdateProfileImage(profileImageUrl); 
+    onClose(); 
   };
 
   if (!isVisible) return null;
@@ -157,8 +147,6 @@ export default function MyYummy() {
       setLoadingStatus("Loading");
       try {
         if (user) {
-          const avatarPicsResult = await fetchAvatarPics();
-          // setAvatarPics(avatarPicsResult);
           await fetchRecipes(user.favoriteRecipes, setFavoriteRecipes);
           await fetchRecipes(user.uploadedRecipes, setUploadedRecipes);
           await fetchMealPlans(user.MealPlans, setMealPlans);

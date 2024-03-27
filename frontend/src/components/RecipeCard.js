@@ -17,15 +17,14 @@ const RecipeCard = ({
   onClick,
   onSelect,
   showSelectButton,
-  showAddIngredientsButton, // New prop to control the display of the "Add Ingredients" button
-  onAddIngredients, // New prop to handle the "Add Ingredients" button click
+  showAddIngredientsButton, 
+  onAddIngredients, 
 }) => {
   const { user, updateUser } = useUser();
   const isLiked = user?.favoriteRecipes?.includes(recipe._id) || false; 
   const [liked, setLiked] = useState(isLiked);
 
   const handleLike = async () => {
-    // If the recipe is already liked, unlike it
     if (liked) {
       const success = await removeFavoriteRecipe(recipe._id, user._id);
       if (success) {
@@ -42,17 +41,14 @@ const RecipeCard = ({
         setLiked(true);
       } else {
         console.error("Failed to add to favorites");
-        // Ensure the UI reflects the failed operation appropriately
         setLiked(false);
       }
     }
   };
   
-
-  // Function to handle select button click without propagating to card click
   const handleSelectClick = (e) => {
-    e.stopPropagation(); // Prevent onClick for the card from being called
-    onSelect(recipe); // Call the onSelect handler passed from the parent
+    e.stopPropagation(); 
+    onSelect(recipe); 
   };
 
   const handleAddIngredientsClick = () => {
