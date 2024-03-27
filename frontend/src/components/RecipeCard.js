@@ -3,14 +3,6 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { addFavoriteRecipe , removeFavoriteRecipe } from "../services/BackendService";
 import { useUser } from "../context/UserContext";
 
-// Enum for recipe categories
-const CategoryLabels = {
-  appetizers: "Appetizers",
-  starters: "Starters",
-  mainDish: "Main Dish",
-  dessert: "Dessert",
-};
-
 const RecipeCard = ({
   recipe,
   isExpanded,
@@ -46,11 +38,6 @@ const RecipeCard = ({
     }
   };
   
-  const handleSelectClick = (e) => {
-    e.stopPropagation(); 
-    onSelect(recipe); 
-  };
-
   const handleAddIngredientsClick = () => {
     onAddIngredients(recipe.ingredients);
   };

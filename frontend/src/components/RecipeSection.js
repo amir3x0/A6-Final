@@ -7,28 +7,36 @@ import { useRecipesForShoppingList } from "../context/RecipesForShoppingListCont
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 
+/**
+ * The RecipeSection component displays a list of recipes categorized by their categories.
+ * Users can filter recipes by category, search for specific recipes, and add selected recipes
+ * to their list for further actions like shopping or cooking.
+ */
 const RecipeSection = () => {
-  const [originalRecipes, setOriginalRecipes] = useState({});
-  const [displayedRecipes, setDisplayedRecipes] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loadingStatus, setLoadingStatus] = useState("Loading");
-  const location = useLocation();
-  const fromShoppingList = location.state?.fromShoppingList;
-  const passedCategory = location.state?.category;
-  const { addRecipe } = useSelectedRecipes();
-  const { addRecipeForShoppingList } = useRecipesForShoppingList();
-  const navigate = useNavigate();
-  const { theme } = useTheme(); 
+  // State variables
+  const [originalRecipes, setOriginalRecipes] = useState({}); // Original recipes fetched from the backend
+  const [displayedRecipes, setDisplayedRecipes] = useState({}); // Recipes currently displayed based on filters
+  const [searchTerm, setSearchTerm] = useState(""); // Search term to filter recipes
+  const [selectedRecipe, setSelectedRecipe] = useState(null); // Currently selected recipe
+  const [selectedCategory, setSelectedCategory] = useState(null); // Currently selected category
+  const [loadingStatus, setLoadingStatus] = useState("Loading"); // Loading status of recipe data
+  const location = useLocation(); // Location object to access state from router
+  const fromShoppingList = location.state?.fromShoppingList; // Flag indicating if redirected from shopping list
+  const passedCategory = location.state?.category; // Category passed from previous page
+  const { addRecipe } = useSelectedRecipes(); // Function to add selected recipes to user's list
+  const { addRecipeForShoppingList } = useRecipesForShoppingList(); // Function to add recipes to shopping list
+  const navigate = useNavigate(); // Function to navigate to different routes
+  const { theme } = useTheme(); // Current theme used in the application
 
+  // Effect to fetch recipes data
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch recipes data from backend
         const fetchedRecipes = await fetchRecipes();
         let categorized;
         if (passedCategory) {
-          // Filter recipes by the passed category
+          // Filter recipes by the passed category if available
           categorized = {
             [passedCategory]: fetchedRecipes.filter(
               (recipe) =>
@@ -36,7 +44,7 @@ const RecipeSection = () => {
             ),
           };
         } else {
-          // Original categorization logic
+          // Original categorization logic if no specific category passed
           categorized = fetchedRecipes.reduce((acc, recipe) => {
             const category = recipe.category.toLowerCase();
             if (!acc[category]) acc[category] = [];
@@ -44,6 +52,7 @@ const RecipeSection = () => {
             return acc;
           }, {});
         }
+        // Set original and displayed recipes
         setOriginalRecipes(categorized);
         setDisplayedRecipes(categorized);
         setLoadingStatus("Loaded");
@@ -74,10 +83,17 @@ const RecipeSection = () => {
     }
   };
 
+  /**
+   * The useEffect hook is used to update the displayed recipes based on the search term.
+   * If the search term is empty, all original recipes are displayed.
+   * If there's a search term, recipes are filtered based on the title containing the search term.
+   */
   useEffect(() => {
     if (!searchTerm.trim()) {
+      // If search term is empty, display all original recipes
       setDisplayedRecipes(originalRecipes);
     } else {
+      // Filter original recipes based on search term and update displayed recipes
       const filtered = Object.keys(originalRecipes).reduce((acc, category) => {
         const filteredRecipes = originalRecipes[category].filter((recipe) =>
           recipe.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -85,19 +101,24 @@ const RecipeSection = () => {
         if (filteredRecipes.length) acc[category] = filteredRecipes;
         return acc;
       }, {});
-
       setDisplayedRecipes(filtered);
     }
   }, [searchTerm, originalRecipes]);
 
+  /**
+   * The handleRecipeClick function toggles the selection of a recipe.
+   * If a recipe is clicked, it becomes selected and its category is also set.
+   * If the same recipe is clicked again, it becomes unselected.
+   */
   const handleRecipeClick = (recipe, category) => {
     setSelectedRecipe(selectedRecipe === recipe ? null : recipe);
     setSelectedCategory(selectedRecipe === recipe ? null : category);
   };
 
+  // Set document title
   document.title = "Our Recipes";
 
-  // Enhanced category colors with more vibrant and unique options
+  // Category colors for light theme
   const categoryColors = {
     appetizers: "bg-pink-50",
     starters: "bg-indigo-50",
@@ -105,6 +126,7 @@ const RecipeSection = () => {
     dessert: "bg-yellow-50",
   };
 
+  // Category colors for dark theme
   const categoryColorsDark = {
     appetizers: "bg-pink-900",
     starters: "bg-indigo-900",
@@ -112,13 +134,21 @@ const RecipeSection = () => {
     dessert: "bg-yellow-900",
   };
 
+  // Render error message if loading fails
   if (loadingStatus === "Error")
     return (
       <div className="text-center text-red-500">Error loading recipes.</div>
     );
+  // Render loading message if data is still loading
   if (loadingStatus !== "Loaded")
     return <div className="text-center">Loading...</div>;
 
+  /**
+   * Renders a container with recipes, allowing users to explore recipes.
+   * Provides a search bar to filter recipes by name.
+   * Displays recipes grouped by category with recipe cards.
+   * Handles recipe selection and click events.
+   */
   return (
     <div className="container mx-auto px-4 py-8 dark:bg-gray-900">
       <div className="text-center mb-12">
@@ -145,11 +175,11 @@ const RecipeSection = () => {
             key={category}
             className={`${
               theme === "dark"
-                ? categoryColorsDark[category] || "bg-gray-800"
+                ? categoryColorsDark[category] || "bg-gray-950" // Deeper shades
                 : categoryColors[category] || "bg-gray-100"
-            } mb-12 p-4 rounded-lg shadow dark:shadow-gray-700/50`}
+            } mb-12 p-4 rounded-lg shadow-lg dark:shadow-xl dark:shadow-black/30`} // Enhanced shadow
           >
-            <h2 className="text-2xl font-bold mb-4 capitalize text-gray-800 dark:text-gray-200">
+            <h2 className="text-2xl font-bold mb-4 capitalize text-primary dark:text-primary-light">
               {category}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -177,8 +207,10 @@ const RecipeSection = () => {
           </div>
         ))
       ) : (
-        <div className="text-center text-gray-800 dark:text-gray-200">No recipes found.</div>
-        )}
+        <div className="text-center text-gray-800 dark:text-gray-200">
+          No recipes found.
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useRecipesForShoppingList } from "../context/RecipesForShoppingListContext";
 import ShopBg from "../pages/shopping/shopping_img/Shopping-list-paper.jpg";
 
+/**
+ * The ShoppingSection component displays the shopping section interface,
+ * allowing users to manage their shopping list by adding, removing, and adjusting
+ * quantities of ingredients from selected recipes or manually.
+ */
 const ShoppingSection = () => {
+  // Hooks and context variables
   const {
     recipesForShoppingList,
     addRecipeForShoppingList,
@@ -19,21 +25,21 @@ const ShoppingSection = () => {
   const [manuallyAddedIngredients, setManuallyAddedIngredients] = useState([]);
   const [recipeIngredients, setRecipeIngredients] = useState([]);
 
+  // useEffect to calculate recipe ingredients based on selected recipes
   useEffect(() => {
-    // Calculate recipe ingredients based on selected recipes
     const calculatedRecipeIngredients = recipesForShoppingList.flatMap(
       (recipe) =>
         recipe.ingredients.map((ingredient) => ({
           name: ingredient.name,
-          quantity: parseQuantity(ingredient.quantity) * (recipe.quantity || 0), // Multiply by recipe quantity
+          quantity: parseQuantity(ingredient.quantity) * (recipe.quantity || 0),
           unit: ingredient.unit,
         }))
     );
     setRecipeIngredients(calculatedRecipeIngredients);
   }, [recipesForShoppingList]);
 
+  // Function to parse quantity string to number
   const parseQuantity = (quantity) => {
-    // Convert quantity to a string to ensure string methods can be used
     const quantityStr = String(quantity);
     if (!quantityStr) return 0;
     if (quantityStr.includes("/")) {
@@ -43,6 +49,7 @@ const ShoppingSection = () => {
     return parseFloat(quantityStr);
   };
 
+  // Handlers for adding, subtracting, and removing recipes
   const handleAddRecipe = () => {
     navigate("/recipes", { state: { fromShoppingList: true } });
   };

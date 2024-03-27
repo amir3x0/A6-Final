@@ -2,25 +2,35 @@ import React, { useState } from "react";
 import sign from "../home_img/sign.png";
 import { registerNewUser } from "../../../services/BackendService";
 
+/**
+ * The JoinUs component renders a section inviting users to join a community
+ * called "The Fatties". It displays reasons to join and a form to sign up.
+ */
 export default function JoinUs() {
-  const [showForm, setShowForm] = useState(false); // State to toggle form visibility
+  // State variables for form input fields and submission message
+  const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [submitMessage, setSubmitMessage] = useState(false);
+
+  // Images and reasons to join
   const images = [sign];
   const reasons = [
     "Worldwide Contribution.",
-    "Varified by the people.",
+    "Verified by the people.",
     "2 is plenty.",
   ];
 
+  // Function to handle input change for form fields
   const handleInputChange = (e, setter) => setter(e.target.value);
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission
     try {
+      // Call backend service to register new user
       const response = registerNewUser(name, email, username, password);
       if (response) {
         setSubmitMessage("User Created!");
@@ -32,6 +42,7 @@ export default function JoinUs() {
     }
   };
 
+  // JSX for rendering the JoinUs component
   return (
     <div className="flex flex-col md:flex-row md:items-start gap-36 p-8 my-20 animate-fadeIn rounded-lg dark:bg-gray-800">
       {/* Image Section */}

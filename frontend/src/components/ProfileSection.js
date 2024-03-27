@@ -10,6 +10,20 @@ import {
 import RecipeCard from "./RecipeCard";
 import MealCard from "./MealCard";
 
+/**
+ * Renders a modal for user settings.
+ * Allows the user to update their bio, theme, and profile image.
+ * Displays current user information and form fields for updates.
+ * Handles changes to bio, theme, and profile image.
+ * Submits updated settings when saved.
+ * Closes the modal when canceled.
+ * @param {boolean} isVisible - Indicates if the modal is visible.
+ * @param {function} onClose - Callback function to close the modal.
+ * @param {object} currentUser - Current user data.
+ * @param {function} onSaveBio - Callback function to save user bio.
+ * @param {function} onUpdateTheme - Callback function to update user theme.
+ * @param {function} onUpdateProfileImage - Callback function to update user profile image.
+ */
 const SettingsModal = ({
   isVisible,
   onClose,
@@ -18,6 +32,7 @@ const SettingsModal = ({
   onUpdateTheme,
   onUpdateProfileImage,
 }) => {
+  // State variables for bio, theme, and profile image
   const [bio, setBio] = useState(currentUser.bio || "");
   const [theme, setTheme] = useState(currentUser.theme || "light");
   const [profileImageUrl, setProfileImageUrl] = useState(
@@ -32,6 +47,7 @@ const SettingsModal = ({
     }
   }, [currentUser]);
 
+  // Event handlers for bio, theme, and profile image changes
   const handleBioChange = (event) => {
     setBio(event.target.value);
   };
@@ -47,10 +63,11 @@ const SettingsModal = ({
     e.preventDefault();
     await onSaveBio(bio);
     await onUpdateTheme(theme);
-    await onUpdateProfileImage(profileImageUrl); 
-    onClose(); 
+    await onUpdateProfileImage(profileImageUrl);
+    onClose();
   };
 
+  // Render null if the modal is not visible
   if (!isVisible) return null;
 
   return (
@@ -131,6 +148,13 @@ const SettingsModal = ({
   );
 };
 
+/**
+ * Renders the user's profile page with their favorite recipes, uploaded recipes, and meal plans.
+ * Manages user data including favorite recipes, uploaded recipes, and meal plans.
+ * Displays loading status while fetching data and handles errors.
+ * Allows the user to expand/collapse recipe and meal plan details.
+ * Allows the user to access settings to manage their profile.
+ */
 export default function MyYummy() {
   const { user, setUser } = useUser();
   const [loadingStatus, setLoadingStatus] = useState("Loading");
@@ -239,16 +263,20 @@ export default function MyYummy() {
     setIsSettingsVisible(!isSettingsVisible);
   };
 
+  /**
+   * Updates the user's biography in the database and updates the user state with the new biography.
+   * @param {string} newBio - The new biography to be saved.
+   */
   const onSaveBio = async (newBio) => {
     setLoadingStatus("Updating Bio");
     try {
-      await updateUserBio(user._id, newBio);
+      await updateUserBio(user._id, newBio); // Update user's bio in the database
+      // Update user state with the new biography
       setUser((currentUser) => ({
         ...currentUser,
         bio: newBio,
       }));
       setLoadingStatus("Loaded");
-      // alert("Bio updated successfully!");
     } catch (error) {
       console.error("Failed to update bio:", error);
       setError("Failed to update bio. Please try again.");
@@ -256,16 +284,20 @@ export default function MyYummy() {
     }
   };
 
+  /**
+   * Updates the user's theme preference in the database and updates the user state with the new theme.
+   * @param {string} newTheme - The new theme preference to be saved.
+   */
   const onUpdateTheme = async (newTheme) => {
     setLoadingStatus("Updating Theme");
     try {
-      await updateUserTheme(user._id, newTheme);
+      await updateUserTheme(user._id, newTheme); // Update user's theme preference in the database
+      // Update user state with the new theme
       setUser((currentUser) => ({
         ...currentUser,
         theme: newTheme,
       }));
       setLoadingStatus("Loaded");
-      // alert("Theme updated successfully!");
     } catch (error) {
       console.error("Failed to update theme:", error);
       setError("Failed to update theme. Please try again.");
@@ -273,10 +305,15 @@ export default function MyYummy() {
     }
   };
 
+  /**
+   * Updates the user's profile image URL in the database and updates the user state with the new URL.
+   * @param {string} newProfileImageUrl - The new profile image URL to be saved.
+   */
   const onUpdateProfileImage = async (newProfileImageUrl) => {
     setLoadingStatus("Updating Profile Image");
     try {
-      await updateUserProfileImage(user._id, newProfileImageUrl); // Assume this function exists
+      await updateUserProfileImage(user._id, newProfileImageUrl); // Update user's profile image URL in the database
+      // Update user state with the new profile image URL
       setUser((currentUser) => ({
         ...currentUser,
         profileImageUrl: newProfileImageUrl,
@@ -351,7 +388,7 @@ export default function MyYummy() {
         currentUser={user}
         onSaveBio={onSaveBio}
         onUpdateTheme={onUpdateTheme}
-        onUpdateProfileImage={onUpdateProfileImage} 
+        onUpdateProfileImage={onUpdateProfileImage}
       />{" "}
     </div>
   );

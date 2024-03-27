@@ -4,7 +4,9 @@ import { Link, useLocation } from "react-router-dom";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { useUser } from "../context/UserContext";
 
+// Define navigation items for users who are logged in and logged out.
 const loggedInItems = [
+  // Paths for when the user is logged in.
   { name: "Home", path: "/" },
   { name: "Recipes", path: "/Recipes" },
   { name: "Plan Meal", path: "/Plan" },
@@ -14,11 +16,13 @@ const loggedInItems = [
 ];
 
 const loggedOutItems = [
+  // Paths accessible to users who are not logged in.
   { name: "Home", path: "/" },
   { name: "Recipes", path: "/Recipes" },
   { name: "Sign In", path: "/SignIn" },
 ];
 
+// Component for individual navigation items.
 const NavItem = ({ item, onItemClick, isActive }) => {
   return (
     <li className="relative group">
@@ -40,15 +44,18 @@ const NavItem = ({ item, onItemClick, isActive }) => {
   );
 };
 
+// The main NavBar component
 const NavBar = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
-  const location = useLocation("");
-  const [logged, setLogged] = useState(false);
-  const [username, setUserName] = useState("");
-  const [navIsVisible, setNavIsVisible] = useState(false);
-  const [navItems, setNavItems] = useState(loggedOutItems);
+  const { user } = useUser(); // Access user context
+  const location = useLocation();
+  const [logged, setLogged] = useState(false); // Track if user is logged in
+  const [username, setUserName] = useState(""); // Store user's name
+  const [navIsVisible, setNavIsVisible] = useState(false); // Manage mobile nav visibility
+  const [navItems, setNavItems] = useState(loggedOutItems); // Dynamically adjust nav items based on login status
 
+  
+  // Effect hook to adjust nav items based on user login status
   useEffect(() => {
     if (user.name) {
       setNavItems(loggedInItems);
@@ -60,17 +67,17 @@ const NavBar = () => {
     }
   }, [user]);
 
+  // Toggle visibility of mobile navigation
   const navVisibilityHandler = () => {
-    setNavIsVisible((curState) => {
-      return !curState;
-    });
+    setNavIsVisible((curState) => !curState);
   };
 
+  // Handle user logout
   const handleLogout = () => {
-    localStorage.removeItem("name");
-    navigate("/");
+    localStorage.removeItem("name"); // Remove user name from local storage
+    navigate("/"); // Redirect to home page
     if (window.location.pathname === "/") {
-      window.location.reload();
+      window.location.reload(); // Force reload if already on the home page
     }
   };
 
