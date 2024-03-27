@@ -1,4 +1,8 @@
-const express = require('express')
+// Importing the Express framework to create and manage routes.
+const express = require('express');
+
+// Destructuring to import recipe-related functions from the recipe controller.
+// These functions handle creating, retrieving, updating, and deleting recipes.
 const {
   getRecipe,
   getRecipes,
@@ -7,22 +11,29 @@ const {
   updateRecipe,
 } = require("../controllers/recipeController");
 
-const router = express.Router()
+// Initializing Express router to define routes for recipe operations.
+const router = express.Router();
 
-// Get all recipes
-router.get('/', getRecipes)
+// Route to get all recipes.
+// This doesn't require any parameters and returns a list of all recipes.
+router.get('/', getRecipes);
 
-// Get single recipe
-router.get('/findone/:id', getRecipe)
+// Route to get a single recipe by its ID.
+// The ':id' in the URL is a dynamic parameter that represents the recipe's ID.
+router.get('/findone/:id', getRecipe);
 
-// Post a new recipe
+// Route to share (post) a new recipe.
+// Data for the new recipe should be included in the request body.
 router.post("/share", shareRecipe);
 
-// Update a recipe 
-router.patch('/:id',updateRecipe)
+// Route to update an existing recipe.
+// This requires the recipe's ID as a URL parameter and the updated data in the request body.
+router.patch('/:id',updateRecipe);
 
-// Delete a recipe 
-router.delete('/:id', deleteRecipe)
+// Route to delete an existing recipe.
+// This requires only the recipe's ID as a URL parameter.
+router.delete('/:id', deleteRecipe);
 
-
-module.exports = router
+// Exporting the router so it can be used in the main server file.
+// This modularizes the routes, keeping the codebase clean and organized.
+module.exports = router;

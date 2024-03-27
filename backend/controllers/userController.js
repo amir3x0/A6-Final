@@ -1,7 +1,9 @@
 const User = require("../models/UserModel");
 const Recipe = require("../models/RecipesModel");
 
-// get user
+//Authenticates a user by checking their username and password. 
+//It uses bcrypt to safely compare the hashed password.
+// If successful, it returns the user's data, excluding the password for security reasons.
 const getUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -39,6 +41,8 @@ const getUser = async (req, res) => {
   }
 };
 
+//createUser: Creates a new user with the information provided in the request body. 
+//This is where a new user's journey begins in your application.
 const createUser = async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -50,6 +54,8 @@ const createUser = async (req, res) => {
   }
 };
 
+//Allows a user to add a recipe to their list of favorites.
+// It checks if the recipe ID already exists in the user's favorites to avoid duplicates.
 const addFavorite = async (req, res) => {
   const { recipeId, userId } = req.body;
   // console.log(`Adding recipe ${recipeId} to favorites for user ${userId}`);
@@ -70,6 +76,8 @@ const addFavorite = async (req, res) => {
   }
 };
 
+//Removes a recipe from a user's favorites list. 
+//It filters out the specified recipe ID from the user's favorite recipes.
 const removeFavorite = async (req, res) => {
   const { recipeId, userId } = req.query;
   // console.log(`Removing recipe ${recipeId} from favorites for user ${userId}`);
@@ -87,6 +95,8 @@ const removeFavorite = async (req, res) => {
   }
 };
 
+//Updates the biography information of a user's profile.
+// This lets users personalize their profiles with a bio.
 const bioUpdate = async (req, res) => {
   const { userId, bio } = req.body;
   console.log(`Updating bio for user ${userId}`);
@@ -104,6 +114,8 @@ const bioUpdate = async (req, res) => {
   }
 };
 
+//Allows users to change their profile theme. 
+//This could be a way for users to customize the look of their profile or app interface.
 const themeUpdate = async (req, res) => {
   const { userId, theme } = req.body;
   console.log(`Updating theme for user ${userId}`);
@@ -121,9 +133,10 @@ const themeUpdate = async (req, res) => {
   }
 };
 
-// Function to upload a new shared recipe to user.
+//Adds a newly shared recipe to the user's list of uploaded recipes.
+// This function is crucial for users who are active in contributing content to your platform.
 const addUploadedRecipe = async (req, res) => {
-  const { userId, recipeId} = req.body;
+  const { userId, recipeId } = req.body;
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -135,8 +148,10 @@ const addUploadedRecipe = async (req, res) => {
   } catch (error) {
     res.status(500).send("Something went wrong, server side.");
   }
-}
+};
 
+//Updates the profile image URL of a user. 
+//This function supports personalization, letting users choose how they present themselves on the platform.
 const changeProflieImage = async (req, res) => {
   const { userId, profileImageUrl } = req.body;
   console.log(`Updating profileImageUrl for user ${userId}`);
