@@ -12,7 +12,7 @@ const ShoppingSection = () => {
     removeRecipeFromShoppingList,
   } = useRecipesForShoppingList();
   const navigate = useNavigate();
-  const { shoppingList: initialShoppingList } = useShoppingList();
+  const { shoppingList: initialShoppingList, addIngredientToShoppingList } = useShoppingList();
   const [ingredientName, setIngredientName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
@@ -75,10 +75,7 @@ const ShoppingSection = () => {
     };
 
     // Add manually added ingredient to the state
-    setManuallyAddedIngredients((prevIngredients) => [
-      ...prevIngredients,
-      newIngredient,
-    ]);
+    addIngredientToShoppingList(newIngredient);
 
     // Clear input fields after adding ingredient
     setIngredientName("");
