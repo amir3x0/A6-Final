@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 
-const ShoppingListContext = createContext(null); // Initialized with null for default value
+const ShoppingListContext = createContext(null);
 
 export const useShoppingList = () => useContext(ShoppingListContext);
 
@@ -24,7 +24,7 @@ export const ShoppingListProvider = ({ children }) => {
   };
 
   return (
-    <ShoppingListContext.Provider value={{ shoppingList, setShoppingList, addIngredientToShoppingList, removeIngredientFromShoppingList, clearShoppingList }}>
+    <ShoppingListContext.Provider value={{ shoppingList, addIngredientToShoppingList, removeIngredientFromShoppingList, clearShoppingList }}>
       {children}
     </ShoppingListContext.Provider>
   );
