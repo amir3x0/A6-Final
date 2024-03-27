@@ -1,3 +1,4 @@
+
 # Full-Stack Recipe Application
 
 This project is a full-stack web application that allows users to search for recipes, manage meal plans, and create shopping lists based on selected recipes. It utilizes React for the frontend and Node.js with Express for the backend, integrating with MongoDB for data persistence. External APIs like Spoonacular for recipe data and ImageKit for image optimization are also used to enhance the functionality.
@@ -35,32 +36,39 @@ These instructions will get you a copy of the project up and running on your loc
 
 ```bash
 git clone https://github.com/amir3x0/A6-Final.git
-
 ```
-##Install Backend Dependencies
+
+### Install Backend Dependencies
 
 Navigate to the backend directory and install the necessary packages.
+
 ```bash
 cd backend
 npm install
 ```
 
-##Install Frontend Dependencies
+### Install Frontend Dependencies
+
 Open a second terminal, navigate to the frontend directory, and install the necessary packages.
+
 ```bash
 cd frontend
 npm install
 ```
 
-###Running the Application
+### Running the Application
+
 Start the Backend Server
+
 ```bash
 cd backend
 npm start
 ```
 
-#Start the Frontend Client
+Start the Frontend Client
+
 In a second terminal:
+
 ```bash
 cd frontend
 npm start
@@ -68,11 +76,32 @@ npm start
 
 The application should now be running and accessible in your browser.
 
+## API Keys
 
-##API Keys
 You will need to obtain API keys for both ImageKit and Spoonacular and add them to your .env file in the backend directory.
 
+## Additional Installations
 
-##Acknowledgments
-ImageKit.io for image management
-Spoonacular for recipe data
+If you encounter any missing package errors, you can install them using the following commands:
+
+```bash
+# Install Express
+npm install express
+
+# Install Mongoose for MongoDB interaction
+npm install mongoose
+
+# Install CORS for handling cross-origin requests
+npm install cors
+
+# Install Axios for making HTTP requests
+npm install axios
+
+# Install dotenv for managing environment variables
+npm install dotenv
+```
+
+## Acknowledgments
+
+- ImageKit.io for image management
+- Spoonacular for recipe data
