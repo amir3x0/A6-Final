@@ -1,6 +1,3 @@
-
-Below is a template for a README.md file tailored to encompass the details and instructions based on the code snippets and information you've provided. This template is designed to offer a comprehensive overview of your project, including setup, installation, and running instructions.
-
 Project Name
 Overview
 This project is a comprehensive web application designed for managing and sharing recipes, creating meal plans, and compiling shopping lists. It utilizes a React frontend to provide an interactive user experience and an Express backend for RESTful API services, integrating with MongoDB for data persistence. The application also leverages external services like ImageKit for image optimization and Spoonacular for accessing an extensive database of recipes and ingredients.
