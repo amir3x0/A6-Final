@@ -58,15 +58,19 @@ npm install
 
 ### Running the Application
 
-Start the Backend Server
+##Start the Backend Server
 
 ```bash
 cd backend
 npm start
 ```
 
-Start the Frontend Client
+##Start the Frontend Client
 
+#Option 1:
+open the URL made with GitHub Pages
+
+#Option 2: 
 In a second terminal:
 
 ```bash
