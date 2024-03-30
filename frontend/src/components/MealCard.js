@@ -71,7 +71,7 @@ const MealCard = ({ meal, onExpandChange }) => {
         </div>
       ) : (
         <>
-          {renderCollage()} // Render the image collage for the non-expanded state.
+          {renderCollage()} 
           <div className="mt-4">
             <ul className="list-disc pl-5 space-y-1">
               {meal.recipes.map((recipe) => (

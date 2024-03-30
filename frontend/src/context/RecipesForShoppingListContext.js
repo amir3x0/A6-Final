@@ -64,7 +64,7 @@ export const RecipesForShoppingListProvider = ({ children }) => {
 
   return (
     <RecipesForShoppingListContext.Provider value={{ recipesForShoppingList, addRecipeForShoppingList, subRecipeForShoppingList, removeRecipeFromShoppingList, clearRecipesForShoppingList }}>
-      {children} // Providing context value to children components.
+      {children}
     </RecipesForShoppingListContext.Provider>
   );
 };
