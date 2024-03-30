@@ -34,7 +34,7 @@ function App() {
                     <Routes> {/* Routes determine what content is shown based on the URL path. */}
                       {/* Each Route is like a signpost, pointing to different pages of our app. */}
                       <Route path="/" element={<Home />} />
-                      <Route path="/A6/" element={<Home />} />
+                      <Route path="/A6-Final/" element={<Home />} />
                       <Route path="/Home" element={<Home />} />
                       <Route path="/Recipes" element={<Recipes />} />
                       <Route path="/Plan" element={<PlanMeal />} />
