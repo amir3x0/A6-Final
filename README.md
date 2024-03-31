@@ -58,6 +58,9 @@ npm install
 
 ### Running the Application
 
+**To simply open the website open the URL created in the github-pages**
+
+**run the website via code-editor**
 ##Start the Backend Server
 
 ```bash
@@ -67,10 +70,16 @@ npm start
 
 ##Start the Frontend Client
 
-#Option 1:
-open the URL made with GitHub Pages
+#Option 1, run on local host:
+In /services/BackendService.js change the API_URL value to http://localhost:4000
 
-#Option 2: 
+and then use In a second terminal:
+```bash
+cd frontend
+npm start
+```
+
+#Option 2, run on deployed server: 
 In a second terminal:
 
 ```bash
