@@ -1,7 +1,7 @@
 // First things first, we need axios. It's our handy tool for making HTTP requests.
 import axios from "axios";
 // Here's our base URL. Think of it as the home address for all our backend conversations.
-const API_URL = "http://localhost:4000";
+const API_URL = "https://a6-final.onrender.com";
 
 // Time to register a new user. It's like signing up for a cooking class.
 export const registerNewUser = async (name, email, username, password) => {
