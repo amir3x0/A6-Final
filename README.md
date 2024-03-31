@@ -58,7 +58,9 @@ npm install
 
 ### Running the Application
 
-**To simply open the website open the URL created in the github-pages**
+**NOTE:To simply open the website open the URL created in the github-pages**
+
+
 
 **run the website via code-editor**
 ##Start the Backend Server
